@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "../setting";
 import "../styles/Login.css"
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const existingUser = localStorage.getItem("user");
-    if (existingUser) {
-      window.location.href = "/menu";
-    }
-  }, []);
+    // Kiểm tra đăng nhập bằng cookie
+    fetch(`${API_URL}/auth/me`, { credentials: "include" })
+      .then(res => {
+        if (res.ok) navigate("/menu");
+      });
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,13 +25,11 @@ const Login = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
+        credentials: "include", // Để nhận cookie
       });
-
       if (!response.ok) throw new Error("Đăng nhập thất bại");
-
-      const data = await response.json();
-      localStorage.setItem("user", JSON.stringify(data));
-      window.location.href = "/menu";
+      // Không lưu localStorage nữa
+      navigate("/menu");
     } catch (err) {
       setError("Sai tên đăng nhập hoặc mật khẩu");
     }

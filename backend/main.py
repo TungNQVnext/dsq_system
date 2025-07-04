@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from authentication.routes import router as auth_router
@@ -7,8 +8,13 @@ from websocket_backend.ws_handler import websocket_endpoint  # ✅ import WebSoc
 from db.database import Base, engine
 from models import user
 import socket
-import os
 from pathlib import Path
+from dotenv import load_dotenv
+from urllib.parse import urlparse
+
+# Load .env
+backend_env_path = Path(__file__).resolve().parent.parent / "backend" / ".env"
+frontend_env_path = Path(__file__).resolve().parent.parent / "frontend" / ".env"
 
 def get_local_ip():
     hostname = socket.gethostname()
@@ -39,19 +45,32 @@ def update_env_file(ip,env_path):
     with open(env_path, "w", encoding="utf-8") as f:
         f.writelines(lines)
 
-backend_env_path = Path(__file__).resolve().parent.parent / "backend" / ".env"
-frontend_env_path = Path(__file__).resolve().parent.parent / "frontend" / ".env"
 current_ip = get_local_ip()
 update_env_file(current_ip, backend_env_path)
 update_env_file(current_ip, frontend_env_path)
 print(f"[INFO] Updated VITE_API_URL in .env: {current_ip}")
+
+# Đọc lại IP sau khi cập nhật .env
+def get_frontend_origin_from_env():
+    from dotenv import load_dotenv
+    load_dotenv(backend_env_path, override=True)
+    vite_api_url = os.getenv("VITE_API_URL", f"http://{current_ip}:8000")
+    parsed = urlparse(vite_api_url)
+    return f"{parsed.scheme}://{parsed.hostname}:5173"
+
+frontend_origin = get_frontend_origin_from_env()
+
 # Khởi tạo FastAPI
 app = FastAPI()
 
-# Cho phép CORS
+# Cho phép CORS với cả localhost và IP
+allow_origins = [
+    frontend_origin,
+    "http://localhost:5173"
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

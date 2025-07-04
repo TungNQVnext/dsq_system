@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 import "../styles/TVDisplay.css";
 import logo from "../assets/Emblem_of_Vietnam.svg";
 
@@ -15,6 +16,8 @@ export const TVDisplay = ({
   counterTitle = "QUẦY 3 - TRẢ KẾT QUẢ",
   counterTitleJA = "カウンター3 - 結果返却窓口",
 }) => {
+  useAuthGuard();
+
   const { subscribe } = useWebSocket();
   const [pendingCalls, setPendingCalls] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());

@@ -2,14 +2,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 const GetNumberOption = () => {
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) {
-      window.location.href = "/";
-    }
-  }, []);
+  useAuthGuard();
 
   const navigate = useNavigate();
 

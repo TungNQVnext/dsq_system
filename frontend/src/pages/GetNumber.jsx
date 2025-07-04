@@ -2,20 +2,15 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 const GetNumber = () => {
+  useAuthGuard();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const prefix = location.state?.prefix;
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) {
-      window.location.href = "/";
-    }
-  }, []);
 
   useEffect(() => {
     if (!prefix) {

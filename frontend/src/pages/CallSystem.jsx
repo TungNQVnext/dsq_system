@@ -5,6 +5,7 @@ import { ControlPanel } from "../components/ControlPanel";
 import { NumberList } from "../components/NumberList";
 
 import { useCallSystem } from "../hooks/useCallSystem";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 import "../styles/CallSystem.css";
 import { getFilterCounts } from "../utils/utils";
 
@@ -15,6 +16,8 @@ import { getFilterCounts } from "../utils/utils";
  * `useCallSystem` hook.
  */
 export default function CallSystem() {
+  useAuthGuard();
+
   const {
     // State
     profileCode,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../setting";
 import '../styles/Menu.css'; 
 
 const Menu = () => {
@@ -8,20 +9,24 @@ const Menu = () => {
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    const u = localStorage.getItem("user");
-    if (!u) {
-      window.location.href = "/";
-    } else {
-      setUser(JSON.parse(u));
-    }
+    // Kiểm tra đăng nhập qua cookie
+    fetch(`${API_URL}/auth/me`, { credentials: "include" })
+      .then(async res => {
+        if (!res.ok) {
+          window.location.href = "/";
+        } else {
+          const data = await res.json();
+          setUser(data);
+        }
+      });
   }, []);
 
   const handleNavigate = (path) => {
     navigate("/" + path);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    await fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" });
     window.location.href = "/";
   };
 
