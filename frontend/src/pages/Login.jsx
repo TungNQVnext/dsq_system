@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { API_URL } from "../setting";
 import "../styles/Login.css"
 import { useNavigate } from "react-router-dom";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -36,6 +38,8 @@ const Login = () => {
   };
 
   return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Header />
     <div className="login-wrapper">
       <div className="login-box">
         <h2 className="login-title">Đăng nhập</h2>
@@ -62,6 +66,8 @@ const Login = () => {
         </form>
         {error && <p className="error-message">{error}</p>}
       </div>
+    </div>
+    <Footer />
     </div>
   );
 };

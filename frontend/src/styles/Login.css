@@ -1,10 +1,10 @@
 /* src/styles/Login.css */
 
 .login-wrapper {
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
 .login-box {

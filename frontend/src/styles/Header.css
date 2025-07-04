@@ -5,6 +5,7 @@
   top: 0;
   z-index: 50;
   backdrop-filter: blur(8px);
+  user-select: none;
 }
 
 .header-container {

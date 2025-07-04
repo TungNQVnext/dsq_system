@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/useAuthGuard";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const GetNumberOption = () => {
   useAuthGuard();
@@ -14,6 +16,8 @@ const GetNumberOption = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="get-number-container">
       <h1 className="get-number-title">Hệ Thống Lấy Số</h1>
       <p className="get-number-subtitle">番号発券システム</p>
@@ -40,6 +44,7 @@ const GetNumberOption = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

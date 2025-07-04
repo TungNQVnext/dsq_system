@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../setting";
 import '../styles/Menu.css'; 
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const Menu = () => {
   const navigate = useNavigate();
@@ -31,6 +33,8 @@ const Menu = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="menu-wrapper">
       <div className="menu-user">
         {user && (
@@ -65,6 +69,8 @@ const Menu = () => {
         </button>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

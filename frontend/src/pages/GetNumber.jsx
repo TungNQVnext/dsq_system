@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/useAuthGuard";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const GetNumber = () => {
   useAuthGuard();
@@ -45,6 +47,8 @@ const GetNumber = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="get-number-wrapper">
       <h2 className="get-number-title">Số thứ tự của bạn là</h2>
       {loading && <p className="number-loading">Đang xử lý...</p>}
@@ -55,6 +59,7 @@ const GetNumber = () => {
         <button onClick={() => navigate("/get-number-option")} className="back-button">Quay lại</button>
       )}
     </div>
+    </>
   );
 };
 
