@@ -1,0 +1,66 @@
+.menu-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 1rem 2rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.menu-user {
+  align-self: flex-end;
+  user-select: none;
+}
+
+.user-button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #374151;
+}
+
+.dropdown-menu {
+  position: absolute;
+  margin-top: 0.5rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  user-select: none;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #ef4444;
+}
+
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  gap: 1rem;
+  width: 100%;
+}
+
+.menu-button {
+  width: 500px;
+  padding: 24px;
+  font-size: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  user-select: none;
+}
+
+.menu-button:hover {
+  background-color: #f3f4f6;
+}

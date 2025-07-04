@@ -1,0 +1,46 @@
+.get-number-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f1f5f9;
+  text-align: center;
+  padding: 1rem;
+}
+
+.get-number-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.number-loading {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.number-display {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #0f172a;
+  margin-bottom: 2rem;
+}
+
+.back-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #2563eb;
+}

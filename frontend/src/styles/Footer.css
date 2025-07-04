@@ -1,0 +1,95 @@
+/* Footer Component - Simple Design */
+.footer {
+  background: #ffffff;
+  color: #1f2937;
+  padding: 0.75rem 0;
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  border-top: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.footer-text p {
+  margin: 0.15rem 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+.footer-vnext-logo {
+  width: 40px;
+  height: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .footer {
+    padding: 0.5rem 0;
+  }
+
+  .footer-text p {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 0.5rem 0;
+  }
+
+  .footer-container {
+    padding: 0 0.75rem;
+  }
+
+  .footer-content {
+    flex-direction: row; /* Keep in row for space efficiency */
+    text-align: left;
+    gap: 0.5rem;
+  }
+
+  .footer-vnext-logo {
+    width: 35px;
+  }
+
+  .footer-text p {
+    font-size: 0.65rem;
+    margin: 0.1rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 0.4rem 0;
+  }
+
+  .footer-container {
+    padding: 0 0.5rem;
+  }
+
+  .footer-vnext-logo {
+    width: 30px;
+  }
+
+  .footer-text p {
+    font-size: 0.6rem;
+    line-height: 1.1;
+  }
+
+  .footer-content {
+    gap: 0.4rem;
+  }
+}
