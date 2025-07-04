@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String
 from db.database import Base
-from authentication.utils import verify_password
+from routes.login.utils import verify_password
 
 class User(Base):
     __tablename__ = "user"

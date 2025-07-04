@@ -6,7 +6,7 @@ from schemas.user import LoginInput, LoginResponse
 from sqlalchemy import func
 from models.call_number import CallNumber
 import datetime
-from login.jwt_utils import create_access_token, get_current_user_from_cookie
+from routes.login.jwt_utils import create_access_token, get_current_user_from_cookie
 
 router = APIRouter()
 
