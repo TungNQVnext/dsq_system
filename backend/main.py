@@ -1,9 +1,9 @@
 import os
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from authentication.routes import router as auth_router
-from touchpad_display.routes import router as call_router
-from return_number.routes import router as return_router
+from routes.login.routes import router as auth_router
+from routes.touchpad_display.routes import router as touchpad_display_router
+from routes.return_number.routes import router as return_router
 from websocket_backend.ws_handler import websocket_endpoint  # ✅ import WebSocket handler
 from db.database import Base, engine
 from models import user
@@ -81,7 +81,7 @@ Base.metadata.create_all(bind=engine)
 
 # Gắn router
 app.include_router(auth_router, prefix="/auth")
-app.include_router(call_router)
+app.include_router(touchpad_display_router)
 app.include_router(return_router, prefix="/return_record")
 
 #  Mount WebSocket endpoint
