@@ -29,7 +29,7 @@ def handle_reading_end(number_str: str):
             if record.status != "waiting_to_receive":
                 logger.info(f" Changing status of record_number {record_number} to 'waiting_to_receive'")
                 record.status = "waiting_to_receive"
-                record.updated_at = datetime.datetime.utcnow()
+                record.updated_at = datetime.datetime.now()
         db.commit()
         logger.info("DB update committed.")
     except Exception as e:

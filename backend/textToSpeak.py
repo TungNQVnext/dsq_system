@@ -30,7 +30,6 @@ def set_main_loop(loop):
     main_loop = loop
 
 def push_status_ws(message):
-    logger.info(f"📡 push_status_ws called with: {message}")
     if status_callback and main_loop:
         try:
             asyncio.run_coroutine_threadsafe(status_callback(message), main_loop)

@@ -6,7 +6,6 @@ from routes.touchpad_display.routes import router as touchpad_display_router
 from routes.return_number.routes import router as return_router
 from websocket_backend.ws_handler import websocket_endpoint
 from db.database import Base, engine
-from models import user
 import socket
 from pathlib import Path
 from dotenv import load_dotenv
@@ -52,7 +51,6 @@ print(f"[INFO] Updated VITE_API_URL in .env: {current_ip}")
 
 # Đọc lại IP sau khi cập nhật .env
 def get_frontend_origin_from_env():
-    from dotenv import load_dotenv
     load_dotenv(backend_env_path, override=True)
     vite_api_url = os.getenv("VITE_API_URL", f"http://{current_ip}:8000")
     parsed = urlparse(vite_api_url)

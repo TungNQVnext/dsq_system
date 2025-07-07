@@ -2,7 +2,6 @@ import os
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi import Request, HTTPException, status, Depends, Response
-from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
 from pathlib import Path
 

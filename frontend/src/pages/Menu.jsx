@@ -9,6 +9,8 @@ const Menu = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
+  const showForAdmin = user?.role === "admin";
+  const showForStaff = user?.role === "staff";
 
   useEffect(() => {
     // Kiểm tra đăng nhập qua cookie
@@ -55,31 +57,31 @@ const Menu = () => {
       </div>
 
       <div className="menu-container">
-        {user?.role === "admin" && (
+        {showForAdmin && (
           <button onClick={() => handleNavigate("get-number-option")} className="menu-button">
             🧾 Lấy số thứ tự
           </button>
         )}
-        {(user?.role === "admin" || user?.role === "staff") && (
+        {(showForAdmin || showForStaff) && (
           <button onClick={() => handleNavigate("return-record-control")} className="menu-button">
             📑 Quản lý tiếp nhận hồ sơ
           </button>
         )}
-        {(user?.role === "admin" || user?.role === "staff") && (
+        {(showForAdmin || showForStaff) && (
           <button onClick={() =>{
             window.open("/return-record-control","_blank");
           }} className="menu-button">
             📦 Quản lý trả hồ sơ
           </button>
         )}
-        {user?.role === "admin" && (
+        {showForAdmin && (
           <button onClick={() =>{
             window.open("/return-record-display","_blank");
           }} className="menu-button">
             Màn hình thông báo trả kết quả
           </button>
         )}
-        {user?.role === "admin" && (
+        {showForAdmin && (
           <button onClick={() =>{
             window.open("_blank");
           }} className="menu-button">
