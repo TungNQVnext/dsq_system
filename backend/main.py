@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.login.routes import router as auth_router
 from routes.touchpad_display.routes import router as touchpad_display_router
 from routes.return_number.routes import router as return_router
-from websocket_backend.ws_handler import websocket_endpoint  # ✅ import WebSocket handler
+from websocket_backend.ws_handler import websocket_endpoint
 from db.database import Base, engine
 from models import user
 import socket

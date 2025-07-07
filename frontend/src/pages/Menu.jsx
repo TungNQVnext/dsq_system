@@ -55,18 +55,37 @@ const Menu = () => {
       </div>
 
       <div className="menu-container">
-        <button onClick={() => handleNavigate("get-number-option")} className="menu-button">
-          🧾 Lấy số thứ tự
-        </button>
-        <button onClick={() => handleNavigate("return-record-control")} className="menu-button">
-          📑 Quản lý tiếp nhận hồ sơ
-        </button>
-        <button onClick={() =>{
-          window.open("/return-record-control","_blank");
-          window.open("/return-record-display","_blank")
-        }} className="menu-button">
-          📦 Quản lý trả hồ sơ
-        </button>
+        {user?.role === "admin" && (
+          <button onClick={() => handleNavigate("get-number-option")} className="menu-button">
+            🧾 Lấy số thứ tự
+          </button>
+        )}
+        {(user?.role === "admin" || user?.role === "staff") && (
+          <button onClick={() => handleNavigate("return-record-control")} className="menu-button">
+            📑 Quản lý tiếp nhận hồ sơ
+          </button>
+        )}
+        {(user?.role === "admin" || user?.role === "staff") && (
+          <button onClick={() =>{
+            window.open("/return-record-control","_blank");
+          }} className="menu-button">
+            📦 Quản lý trả hồ sơ
+          </button>
+        )}
+        {user?.role === "admin" && (
+          <button onClick={() =>{
+            window.open("/return-record-display","_blank");
+          }} className="menu-button">
+            Màn hình thông báo trả kết quả
+          </button>
+        )}
+        {user?.role === "admin" && (
+          <button onClick={() =>{
+            window.open("_blank");
+          }} className="menu-button">
+            Màn hình thông báo nhận kết quả
+          </button>
+        )}           
       </div>
     </div>
     <Footer />
