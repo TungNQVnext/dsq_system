@@ -1,6 +1,6 @@
 from db.database import SessionLocal
 from models.user import User
-from authentication.utils import hash_password
+from routes.login.ultis import hash_password
 
 db = SessionLocal()
 
