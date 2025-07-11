@@ -8,4 +8,5 @@ class CallNumber(Base):
     id = Column(Integer, primary_key=True, index=True)
     number = Column(String, index=True)
     prefix = Column(String, index=True)
+    status = Column(String, nullable=False)
     created_date = Column(Date, default=datetime.date.today, index=True)

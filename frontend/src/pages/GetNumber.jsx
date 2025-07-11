@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
@@ -10,6 +10,7 @@ const GetNumber = () => {
   useAuthGuard();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [loading, setLoading] = useState(false);
+  const hasCalledAPI = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const prefix = location.state?.prefix;
@@ -17,15 +18,20 @@ const GetNumber = () => {
   useEffect(() => {
     if (!prefix) {
       navigate("/get-number-option");
+      return;
     }
-  }, []);
-
-  useEffect(() => {
-    if (prefix)
+    
+    if (prefix && !hasCalledAPI.current) {
+      hasCalledAPI.current = true;
       handleGetNumber();
+    }
   }, [prefix]);
 
   const handleGetNumber = async () => {
+    if (loading || currentNumber) {
+      return;
+    }
+    
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/call/number`, {
@@ -42,6 +48,7 @@ const GetNumber = () => {
       }, 20000);
     } catch (err) {
       alert("Lỗi lấy số, vui lòng thử lại.");
+      hasCalledAPI.current = false;
     }
     setLoading(false);
   };
@@ -56,7 +63,9 @@ const GetNumber = () => {
         <h1 className="number-display">{currentNumber}</h1>
       )}
       {currentNumber && (
-        <button onClick={() => navigate("/get-number-option")} className="back-button">Quay lại</button>
+        <button onClick={() => navigate("/get-number-option")} className="back-button">
+          Quay lại
+        </button>
       )}
     </div>
     </>
