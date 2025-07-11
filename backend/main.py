@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.login.routes import router as auth_router
 from routes.touchpad_display.routes import router as touchpad_display_router
 from routes.return_number.routes import router as return_router
+from routes.receive_number.routes import router as receive_router
 from websocket_backend.ws_handler import websocket_endpoint
 from db.database import Base, engine
 import socket
@@ -49,7 +50,6 @@ update_env_file(current_ip, backend_env_path)
 update_env_file(current_ip, frontend_env_path)
 print(f"[INFO] Updated VITE_API_URL in .env: {current_ip}")
 
-# Đọc lại IP sau khi cập nhật .env
 def get_frontend_origin_from_env():
     load_dotenv(backend_env_path, override=True)
     vite_api_url = os.getenv("VITE_API_URL", f"http://{current_ip}:8000")
@@ -58,10 +58,8 @@ def get_frontend_origin_from_env():
 
 frontend_origin = get_frontend_origin_from_env()
 
-# Khởi tạo FastAPI
 app = FastAPI()
 
-# Cho phép CORS với cả localhost và IP
 allow_origins = [
     frontend_origin,
     "http://localhost:5173"
@@ -74,13 +72,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Khởi tạo DB
 Base.metadata.create_all(bind=engine)
 
-# Gắn router
 app.include_router(auth_router, prefix="/auth")
 app.include_router(touchpad_display_router)
 app.include_router(return_router, prefix="/return_record")
+app.include_router(receive_router, prefix="/receive_number")
 
 #  Mount WebSocket endpoint
 @app.websocket("/ws")

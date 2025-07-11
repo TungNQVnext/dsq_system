@@ -1,101 +1,324 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { LANGUAGES } from "../constants/constants";
+import { API_URL } from "../setting";
+import { useWebSocket } from "../hooks/useWebSocket";
+import "../styles/ReceiveNumber.css";
 
 const ReceiveNumber = () => {
-  const [currentNumber] = useState({
-    number: 'A001',
-    service: 'Visa',
-    nationality: 'Việt Nam',
-    startTime: '09:30',
-    status: 'serving'
+  const [currentNumber, setCurrentNumber] = useState(null);
+  const [queueItems, setQueueItems] = useState([]);
+  const [allItems, setAllItems] = useState([]); // Store all items for filtering
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false); // For button actions
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('ready'); // 'ready', 'cancel', 'completed'
+  
+  const [waitingCount, setWaitingCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [finishedCount, setFinishedCount] = useState(0);
+  const [selectedLanguage, setSelectedLanguage] = useState("vietnamese+japanese");
+  
+  // Initialize selectedDoor from localStorage or default to "1"
+  const [selectedDoor, setSelectedDoor] = useState(() => {
+    return localStorage.getItem('selectedDoor') || "1";
+  });
+  
+  // Initialize selectedNationality based on localStorage or selectedDoor
+  const [selectedNationality, setSelectedNationality] = useState(() => {
+    const savedNationality = localStorage.getItem('selectedNationality');
+    if (savedNationality) {
+      return savedNationality;
+    }
+    // Fallback to door-based default
+    const savedDoor = localStorage.getItem('selectedDoor') || "1";
+    if (savedDoor === "1" || savedDoor === "2") {
+      return "vietnam";
+    } else if (savedDoor === "3") {
+      return "other";
+    }
+    return "vietnam";
   });
 
-  // Queue items data
-  const [queueItems] = useState([
-    {
-      number: 'B001',
-      nationality: 'Việt Nam',
-      counter: 1,
-      priorityClass: 'priority'
-    },
-    {
-      number: 'A003',
-      nationality: 'Quốc tịch khác',
-      counter: 2,
-      priorityClass: 'normal'
-    },
-    {
-      number: 'C001',
-      nationality: 'Việt Nam',
-      counter: 1,
-      priorityClass: 'urgent'
-    },
-    {
-      number: 'A004',
-      nationality: 'Việt Nam',
-      counter: 1,
-      priorityClass: 'normal'
-    },
-    {
-      number: 'C001',
-      nationality: 'Việt Nam',
-      counter: 1,
-      priorityClass: 'urgent'
-    },
-    {
-      number: 'C001',
-      nationality: 'Việt Nam',
-      counter: 1,
-      priorityClass: 'urgent'
-    },
-    {
-      number: 'C001',
-      nationality: 'Việt Nam',
-      counter: 1,
-      priorityClass: 'urgent'
-    },
-  ]);
+  // WebSocket for real-time updates
+  const { subscribe } = useWebSocket();
 
-  const [waitingCount] = useState(5);
-  const [completedCount] = useState(0);
-  const [finishedCount] = useState(0);
-  const [selectedLanguage, setSelectedLanguage] = useState("vietnamese+japanese");
+  // Calculate counts based on current filter
+  const calculateCounts = (data = allItems) => {
+    // Filter and count by status
+    const waitingItems = data.filter(item => item.status === 'ready');
+    const completedItems = data.filter(item => item.status === 'completed');
+    const skippedItems = data.filter(item => item.status === 'cancel');
+    
+    // Apply nationality filter for counts
+    const getFilteredItems = (items) => {
+      if (selectedNationality === "all") return items;
+      if (selectedNationality === "vietnam") {
+        return items.filter(item => 
+          item.nationality && item.nationality.toLowerCase().includes("việt nam")
+        );
+      }
+      if (selectedNationality === "other") {
+        return items.filter(item => 
+          !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
+        );
+      }
+      return items;
+    };
+    
+    // Set counts with nationality filter applied
+    setWaitingCount(getFilteredItems(waitingItems).length);
+    setCompletedCount(getFilteredItems(skippedItems).length);
+    setFinishedCount(getFilteredItems(completedItems).length);
+  };
+
+  // Fetch call numbers from API
+  const fetchCallNumbers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/receive_number/call-numbers`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch call numbers');
+      }
+      const data = await response.json();
+      
+      // Store all data
+      setAllItems(data);
+      
+      // Calculate counts based on current filter
+      calculateCounts(data);
+      
+      // Update queue items based on active tab
+      updateQueueItemsForTab(activeTab, data);
+      
+      // Set current serving number (first serving item or first ready item)
+      const waitingItems = data.filter(item => item.status === 'ready');
+      const servingItem = data.find(item => item.status === 'serving') || waitingItems[0];
+      if (servingItem) {
+        setCurrentNumber({
+          id: servingItem.id, 
+          number: servingItem.number,
+          nationality: servingItem.nationality,
+          startTime: new Date(servingItem.updated_date).toLocaleTimeString('vi-VN', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          status: servingItem.status
+        });
+      } else {
+        setCurrentNumber(null); 
+      }
+      
+      setError(null);
+    } catch (err) {
+      setError('Lỗi khi tải dữ liệu: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update call number status
+  const updateCallNumberStatus = async (callNumberId, newStatus) => {
+    try {
+      if (!callNumberId) {
+        throw new Error('Call number ID is required');
+      }
+      
+      const response = await fetch(`${API_URL}/receive_number/call-numbers/${callNumberId}/status?new_status=${newStatus}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update status: ${response.status} - ${errorText}`);
+      }
+      
+      const result = await response.json();
+      
+      // Refresh data after update
+      await fetchCallNumbers();
+      
+    } catch (err) {
+      setError('Lỗi khi cập nhật trạng thái: ' + err.message);
+    }
+  };
+
+  // Update queue items based on active tab
+  const updateQueueItemsForTab = (tab, data = allItems) => {
+    let filteredItems = [];
+    switch (tab) {
+      case 'ready':
+        filteredItems = data.filter(item => item.status === 'ready');
+        break;
+      case 'cancel':
+        filteredItems = data.filter(item => item.status === 'cancel');
+        break;
+      case 'completed':
+        filteredItems = data.filter(item => item.status === 'completed');
+        break;
+      default:
+        filteredItems = data.filter(item => item.status === 'ready');
+    }
+    
+    // Apply nationality filter
+    if (selectedNationality !== "all") {
+      if (selectedNationality === "vietnam") {
+        filteredItems = filteredItems.filter(item => 
+          item.nationality && item.nationality.toLowerCase().includes("việt nam")
+        );
+      } else if (selectedNationality === "other") {
+        filteredItems = filteredItems.filter(item => 
+          !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
+        );
+      }
+    }
+    
+    setQueueItems(filteredItems);
+  };
+
+  // Handle door change
+  const handleDoorChange = (doorNumber) => {
+    setSelectedDoor(doorNumber);
+    
+
+    localStorage.setItem('selectedDoor', doorNumber);
+    
+
+    let newNationality;
+    if (doorNumber === "1" || doorNumber === "2") {
+      newNationality = "vietnam";
+    } else if (doorNumber === "3") {
+      newNationality = "other";
+    }
+    
+    setSelectedNationality(newNationality);
+    localStorage.setItem('selectedNationality', newNationality);
+  };
+
+  // Handle tab click
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    updateQueueItemsForTab(tab);
+  };
+
+  // Handle button actions
+  const handleCallAgain = () => {
+    if (currentNumber) {
+
+    }
+  };
+
+  const handleSkip = async () => {
+    if (currentNumber && currentNumber.id) {
+      setActionLoading(true);
+      try {
+        await updateCallNumberStatus(currentNumber.id, 'cancel');
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handleComplete = async () => {
+    if (currentNumber && currentNumber.id) {
+      setActionLoading(true);
+      try {
+        await updateCallNumberStatus(currentNumber.id, 'completed');
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handleCallNext = async () => {
+    if (actionLoading) return;
+    
+    const readyItems = allItems.filter(item => item.status === 'ready');
+    const nextWaiting = readyItems[0]; 
+    if (nextWaiting && nextWaiting.id) {
+      setActionLoading(true);
+      try {
+        await updateCallNumberStatus(nextWaiting.id, 'serving');
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchCallNumbers();
+  }, []);
+
+  useEffect(() => {
+    // WebSocket real-time updates - remove dependency to prevent re-subscription
+    if (!subscribe) return;
+    
+    const unsubscribe = subscribe("call_number_updated", (message) => {
+      console.log("📡 Real-time update received:", message);
+      // Auto-update when call numbers change
+      fetchCallNumbers();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []); 
+
+
+
+  // Update queue items when activeTab changes
+  useEffect(() => {
+    if (allItems.length > 0) {
+      updateQueueItemsForTab(activeTab);
+    }
+  }, [activeTab, allItems, selectedNationality, selectedDoor]); 
+
+  // Update counts when nationality filter changes
+  useEffect(() => {
+    if (allItems.length > 0) {
+      calculateCounts();
+    }
+  }, [selectedNationality]); // Chỉ theo dõi selectedNationality để cập nhật số lượng 
 
  
 
     return (
-    <div className='min-h-screen flex flex-col'>
+    <div className='receive-number-container'>
       <Header/>
       
       {/* Title Section */}
-      <div className="bg-white py-6">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
+      <div className="title-section">
+        <div className="title-wrapper">
+          <div className="title-header">
+            <h1 className="title-text">
               Hệ thống nhận hồ sơ
             </h1>
           </div>
           
-          <div className="flex justify-center items-center gap-8">
-            {/* Cửa dropdown */}
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700 font-medium">Cửa:</span>
-              <select className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <div className="controls-section">
+            <div className="control-group">
+              <span className="control-label">Cửa:</span>
+              <select 
+                value={selectedDoor}
+                onChange={(e) => handleDoorChange(e.target.value)}
+                className="control-select"
+              >
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
               </select>
             </div>
             
-            {/* Giọng nói section */}
-            <div className="flex items-center gap-3">
-              <span className="text-gray-700 font-medium">Giọng nói:</span>
+            <div className="control-group">
+              <span className="control-label">Giọng nói:</span>
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="control-select"
               >
                 {Object.entries(LANGUAGES).map(([key, label]) => (
                   <option key={key} value={key}>
@@ -109,89 +332,131 @@ const ReceiveNumber = () => {
       </div>
       
       {/* Main Content - Takes remaining space */}
-      <div className="flex-1 flex-col font-sans">
+      <div className="main-content">
         {/* Content Area */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 p-6 max-w-7xl mx-auto w-full">
+        <div className="content-area">
           {/* Left Panel - Queue List */}
-          <div className="flex flex-col">
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 h-full overflow-hidden">
+          <div className="left-panel">
+            <div className="queue-container">
               {/* Header */}
-              <div className="p-6 border-b border-gray-200 bg-gray-50">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Danh sách số (5 số)
+              <div className="queue-header">
+                <h2 className="queue-title">
+                  Danh sách số
                 </h2>
-                <div className="flex gap-3">
-                 
-                  <select className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option>Tất cả quốc tịch</option>
-                    <option>Việt Nam</option>
-                    <option>Quốc tịch khác</option>
+                <div className="nationality-filter">
+                  <select 
+                    value={selectedNationality}
+                    onChange={(e) => {
+                      setSelectedNationality(e.target.value);
+                      localStorage.setItem('selectedNationality', e.target.value);
+                    }}
+                    className="nationality-select"
+                  >
+                    <option value="all">Tất cả quốc tịch</option>
+                    <option value="vietnam">Việt Nam</option>
+                    <option value="other">Quốc tịch khác</option>
                   </select>
                 </div>
               </div>
 
               {/* Tabs */}
-              <div className="flex border-b border-gray-200">
-                <button className="flex-1 px-4 py-3 text-sm font-medium text-blue-600 bg-white border-b-2 border-blue-600">
+              <div className="tabs-container">
+                <button 
+                  onClick={() => handleTabClick('ready')}
+                  className={`tab-button ${activeTab === 'ready' ? 'active' : ''}`}
+                >
                   Hàng đợi sẵn sàng ({waitingCount})
                 </button>
-                <button className="flex-1 px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
+                <button 
+                  onClick={() => handleTabClick('cancel')}
+                  className={`tab-button ${activeTab === 'cancel' ? 'active' : ''}`}
+                >
                   Đã bỏ qua ({completedCount})
                 </button>
-                <button className="flex-1 px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
+                <button 
+                  onClick={() => handleTabClick('completed')}
+                  className={`tab-button ${activeTab === 'completed' ? 'active' : ''}`}
+                >
                   Đã hoàn tất ({finishedCount})
                 </button>
               </div>
 
               {/* Queue Items */}
-              <div className="max-h-96 overflow-y-auto">
-                {queueItems.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center p-6 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="text-xl font-bold text-blue-600 min-w-[60px]">
-                        {item.number}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <div className="font-semibold text-gray-900 text-sm">
-                          {item.service}
+              <div className="queue-items">
+                {loading ? (
+                  <div className="loading-state">
+                    <div className="loading-text">Đang tải...</div>
+                  </div>
+                ) : error ? (
+                  <div className="error-state">
+                    <div className="error-text">{error}</div>
+                  </div>
+                ) : queueItems.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-text">Không có số nào trong hàng đợi</div>
+                  </div>
+                ) : (
+                  queueItems.map((item, index) => (
+                    <div key={item.id || index} className="queue-item">
+                      <div className="queue-item-content">
+                        <div className="queue-number">
+                          {item.number}
                         </div>
-                        <div className="text-xs text-gray-600">
-                          {item.nationality}
+                        <div className="queue-details">
+                          <div className="queue-nationality">
+                            {item.nationality}
+                          </div>
                         </div>
                       </div>
                     </div>
-                    
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
 
           {/* Right Panel - Current Serving */}
-          <div className="flex flex-col">
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 h-full p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+          <div className="right-panel">
+            <div className="current-serving-container">
+              <h2 className="current-serving-title">
                 Số đang xử lý
               </h2>
               
               {/* Current Number Display */}
-              <div className="text-center mb-8 p-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                <div className="text-6xl font-black text-blue-700 mb-4 tracking-tight">
-                  {currentNumber.number}
-                </div>
-                
+              <div className="current-number-display">
+                {currentNumber ? (
+                  <div className="current-number">
+                    {currentNumber.number}
+                  </div>
+                ) : (
+                  <div className="no-number">
+                    Chưa có số nào
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:-translate-y-0.5">
+              <div className="action-buttons">
+                <button 
+                  onClick={handleCallAgain}
+                  disabled={!currentNumber || actionLoading}
+                  className="action-button btn-secondary"
+                >
                   Gọi lại
                 </button>
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:-translate-y-0.5">
-                  Bỏ qua
+                <button 
+                  onClick={handleSkip}
+                  disabled={!currentNumber || actionLoading}
+                  className="action-button btn-secondary"
+                >
+                  {actionLoading ? 'Đang xử lý...' : 'Bỏ qua'}
                 </button>
-                <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:-translate-y-0.5 shadow-lg">
-                  Hoàn tất
+                <button 
+                  onClick={handleComplete}
+                  disabled={!currentNumber || actionLoading}
+                  className="action-button btn-primary"
+                >
+                  {actionLoading ? 'Đang xử lý...' : 'Hoàn tất'}
                 </button>
               </div>
             </div>
@@ -199,13 +464,16 @@ const ReceiveNumber = () => {
         </div>
 
         {/* Bottom Controls */}
-        <div className="flex justify-center items-center gap-10 p-6 max-w-7xl mx-auto w-full">
-          <button className="flex items-center w-1/3 justify-center gap-2 px-8 py-4 bg-green-700 text-white text-base font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:-translate-y-1 shadow-lg min-w-[140px]">
+        <div className="bottom-controls">
+          <button 
+            disabled={waitingCount === 0}
+            className="bottom-button btn-success"
+          >
             Gọi tiếp
           </button>
           
          
-          <button className="flex items-center w-1/3 justify-center gap-2 px-8 py-4 bg-white border border-gray-300 text-gray-700 text-base font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:-translate-y-1 min-w-[140px]">
+          <button className="bottom-button btn-outline">
             Gọi thủ công
           </button>
         </div>

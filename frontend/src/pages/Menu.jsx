@@ -13,7 +13,6 @@ const Menu = () => {
   const showForStaff = user?.role === "staff";
 
   useEffect(() => {
-    // Kiểm tra đăng nhập qua cookie
     fetch(`${API_URL}/auth/me`, { credentials: "include" })
       .then(async res => {
         if (!res.ok) {
@@ -63,7 +62,9 @@ const Menu = () => {
           </button>
         )}
         {(showForAdmin || showForStaff) && (
-          <button onClick={() => handleNavigate("return-record-control")} className="menu-button">
+          <button onClick={() => {
+            window.open("/receive-number-control","_blank")
+          }} className="menu-button">
             📑 Quản lý tiếp nhận hồ sơ
           </button>
         )}
