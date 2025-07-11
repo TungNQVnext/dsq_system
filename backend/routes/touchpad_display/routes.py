@@ -18,11 +18,12 @@ def generate_number(req: CallRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Prefix không hợp lệ")
 
     today = datetime.date.today()
+    now = datetime.datetime.now()
     
     try:
         max_number_query = db.query(func.max(CallNumber.number)).filter(
             CallNumber.prefix == prefix,
-            CallNumber.created_date == today
+            func.date(CallNumber.created_date) == today
         ).scalar()
 
         if max_number_query:
@@ -36,7 +37,7 @@ def generate_number(req: CallRequest, db: Session = Depends(get_db)):
         new_call = CallNumber(
             number=new_number, 
             prefix=prefix, 
-            created_date=today, 
+            created_date=now, 
             status="ready"
         )
         

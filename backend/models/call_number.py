@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, DateTime
 from db.database import Base
 import datetime
 
@@ -8,5 +8,6 @@ class CallNumber(Base):
     id = Column(Integer, primary_key=True, index=True)
     number = Column(String, index=True)
     prefix = Column(String, index=True)
-    status = Column(String, nullable=False)
-    created_date = Column(Date, default=datetime.date.today, index=True)
+    status = Column(String, nullable=False, index=True)
+    created_date = Column(DateTime, default=datetime.datetime.now, index=True)
+    updated_date = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now, index=True)
