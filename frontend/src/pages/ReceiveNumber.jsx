@@ -3,7 +3,7 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { LANGUAGES } from "../constants/constants";
 
-const Test = () => {
+const ReceiveNumber = () => {
   const [currentNumber] = useState({
     number: 'A001',
     service: 'Visa',
@@ -74,7 +74,7 @@ const Test = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900">
-              Hệ thống gọi số - Đại sứ quán Việt Nam tại Nhật
+              Hệ thống nhận hồ sơ
             </h1>
           </div>
           
@@ -218,5 +218,5 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default ReceiveNumber;
 
