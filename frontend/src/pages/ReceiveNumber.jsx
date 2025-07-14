@@ -44,12 +44,22 @@ const ReceiveNumber = () => {
   // WebSocket for real-time updates
   const { subscribe } = useWebSocket();
 
+  // Helper function to check if date is today
+  const isToday = (dateString) => {
+    const today = new Date();
+    const itemDate = new Date(dateString);
+    return today.toDateString() === itemDate.toDateString();
+  };
+
   // Calculate counts based on current filter
   const calculateCounts = (data = allItems) => {
+    // Filter by today's date first
+    const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
+    
     // Filter and count by status
-    const waitingItems = data.filter(item => item.status === 'ready');
-    const completedItems = data.filter(item => item.status === 'completed');
-    const skippedItems = data.filter(item => item.status === 'cancel');
+    const waitingItems = todayItems.filter(item => item.status === 'ready');
+    const completedItems = todayItems.filter(item => item.status === 'completed');
+    const skippedItems = todayItems.filter(item => item.status === 'cancel');
     
     // Apply nationality filter for counts
     const getFilteredItems = (items) => {
@@ -92,22 +102,28 @@ const ReceiveNumber = () => {
       // Update queue items based on active tab
       updateQueueItemsForTab(activeTab, data);
       
-      // Set current serving number (first serving item or first ready item)
-      const waitingItems = data.filter(item => item.status === 'ready');
-      const servingItem = data.find(item => item.status === 'serving') || waitingItems[0];
-      if (servingItem) {
-        setCurrentNumber({
-          id: servingItem.id, 
-          number: servingItem.number,
-          nationality: servingItem.nationality,
-          startTime: new Date(servingItem.updated_date).toLocaleTimeString('vi-VN', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
-          status: servingItem.status
-        });
-      } else {
-        setCurrentNumber(null); 
+      // Only set current number from serving/ready items if we're on ready tab
+      if (activeTab === 'ready') {
+        // Filter by today's date first
+        const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
+        
+        // Set current serving number (first serving item or first ready item)
+        const waitingItems = todayItems.filter(item => item.status === 'ready');
+        const servingItem = todayItems.find(item => item.status === 'serving') || waitingItems[0];
+        if (servingItem) {
+          setCurrentNumber({
+            id: servingItem.id, 
+            number: servingItem.number,
+            nationality: servingItem.nationality,
+            startTime: new Date(servingItem.updated_date).toLocaleTimeString('vi-VN', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            }),
+            status: servingItem.status
+          });
+        } else {
+          setCurrentNumber(null); 
+        }
       }
       
       setError(null);
@@ -149,19 +165,22 @@ const ReceiveNumber = () => {
 
   // Update queue items based on active tab
   const updateQueueItemsForTab = (tab, data = allItems) => {
+    // Filter by today's date first
+    const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
+    
     let filteredItems = [];
     switch (tab) {
       case 'ready':
-        filteredItems = data.filter(item => item.status === 'ready');
+        filteredItems = todayItems.filter(item => item.status === 'ready');
         break;
       case 'cancel':
-        filteredItems = data.filter(item => item.status === 'cancel');
+        filteredItems = todayItems.filter(item => item.status === 'cancel');
         break;
       case 'completed':
-        filteredItems = data.filter(item => item.status === 'completed');
+        filteredItems = todayItems.filter(item => item.status === 'completed');
         break;
       default:
-        filteredItems = data.filter(item => item.status === 'ready');
+        filteredItems = todayItems.filter(item => item.status === 'ready');
     }
     
     // Apply nationality filter
@@ -178,6 +197,56 @@ const ReceiveNumber = () => {
     }
     
     setQueueItems(filteredItems);
+    
+    // Update current number based on active tab
+    if (tab === 'ready') {
+      // For ready tab, show serving item or first ready item
+      const servingItem = todayItems.find(item => item.status === 'serving');
+      let readyItems = todayItems.filter(item => item.status === 'ready');
+      if (selectedNationality !== "all") {
+        if (selectedNationality === "vietnam") {
+          readyItems = readyItems.filter(item => 
+            item.nationality && item.nationality.toLowerCase().includes("việt nam")
+          );
+        } else if (selectedNationality === "other") {
+          readyItems = readyItems.filter(item => 
+            !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
+          );
+        }
+      }
+      const currentItem = servingItem || readyItems[0];
+      if (currentItem) {
+        setCurrentNumber({
+          id: currentItem.id, 
+          number: currentItem.number,
+          nationality: currentItem.nationality,
+          startTime: new Date(currentItem.updated_date).toLocaleTimeString('vi-VN', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          status: currentItem.status
+        });
+      } else {
+        setCurrentNumber(null); 
+      }
+    } else {
+      // For cancel/completed tabs, show first item in the filtered list
+      if (filteredItems.length > 0) {
+        const firstItem = filteredItems[0];
+        setCurrentNumber({
+          id: firstItem.id, 
+          number: firstItem.number,
+          nationality: firstItem.nationality,
+          startTime: new Date(firstItem.updated_date).toLocaleTimeString('vi-VN', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          status: firstItem.status
+        });
+      } else {
+        setCurrentNumber(null);
+      }
+    }
   };
 
   // Handle door change
@@ -203,6 +272,20 @@ const ReceiveNumber = () => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     updateQueueItemsForTab(tab);
+  };
+
+  // Handle queue item click
+  const handleQueueItemClick = (item) => {
+    setCurrentNumber({
+      id: item.id, 
+      number: item.number,
+      nationality: item.nationality,
+      startTime: new Date(item.updated_date).toLocaleTimeString('vi-VN', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }),
+      status: item.status
+    });
   };
 
   // Handle button actions
@@ -237,7 +320,9 @@ const ReceiveNumber = () => {
   const handleCallNext = async () => {
     if (actionLoading) return;
     
-    const readyItems = allItems.filter(item => item.status === 'ready');
+    // Filter by today's date first
+    const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
+    const readyItems = todayItems.filter(item => item.status === 'ready');
     const nextWaiting = readyItems[0]; 
     if (nextWaiting && nextWaiting.id) {
       setActionLoading(true);
@@ -246,6 +331,20 @@ const ReceiveNumber = () => {
       } finally {
         setActionLoading(false);
       }
+    }
+  };
+
+  // Get display title based on active tab
+  const getDisplayTitle = () => {
+    switch (activeTab) {
+      case 'ready':
+        return 'Số đang xử lý';
+      case 'cancel':
+        return 'Số đã bỏ qua';
+      case 'completed':
+        return 'Số đã hoàn tất';
+      default:
+        return 'Số đang xử lý';
     }
   };
 
@@ -282,7 +381,7 @@ const ReceiveNumber = () => {
     if (allItems.length > 0) {
       calculateCounts();
     }
-  }, [selectedNationality]); // Chỉ theo dõi selectedNationality để cập nhật số lượng 
+  }, [selectedNationality]);
 
  
 
@@ -397,7 +496,12 @@ const ReceiveNumber = () => {
                   </div>
                 ) : (
                   queueItems.map((item, index) => (
-                    <div key={item.id || index} className="queue-item">
+                    <div 
+                      key={item.id || index} 
+                      className={`queue-item ${currentNumber && currentNumber.id === item.id ? 'selected' : ''}`}
+                      onClick={() => handleQueueItemClick(item)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <div className="queue-item-content">
                         <div className="queue-number">
                           {item.number}
@@ -415,14 +519,12 @@ const ReceiveNumber = () => {
             </div>
           </div>
 
-          {/* Right Panel - Current Serving */}
           <div className="right-panel">
-            <div className="current-serving-container">
-              <h2 className="current-serving-title">
-                Số đang xử lý
+            <div className="number-display-container">
+              <h2 className="number-display-title">
+                {getDisplayTitle()}
               </h2>
               
-              {/* Current Number Display */}
               <div className="current-number-display">
                 {currentNumber ? (
                   <div className="current-number">
@@ -444,20 +546,24 @@ const ReceiveNumber = () => {
                 >
                   Gọi lại
                 </button>
-                <button 
-                  onClick={handleSkip}
-                  disabled={!currentNumber || actionLoading}
-                  className="action-button btn-secondary"
-                >
-                  {actionLoading ? 'Đang xử lý...' : 'Bỏ qua'}
-                </button>
-                <button 
-                  onClick={handleComplete}
-                  disabled={!currentNumber || actionLoading}
-                  className="action-button btn-primary"
-                >
-                  {actionLoading ? 'Đang xử lý...' : 'Hoàn tất'}
-                </button>
+                {activeTab !== 'cancel' && activeTab !== 'completed' && (
+                  <button 
+                    onClick={handleSkip}
+                    disabled={!currentNumber || actionLoading}
+                    className="action-button btn-secondary"
+                  >
+                    {actionLoading ? 'Đang xử lý...' : 'Bỏ qua'}
+                  </button>
+                )}
+                {activeTab !== 'completed' && (
+                  <button 
+                    onClick={handleComplete}
+                    disabled={!currentNumber || actionLoading}
+                    className="action-button btn-primary"
+                  >
+                    {actionLoading ? 'Đang xử lý...' : 'Hoàn tất'}
+                  </button>
+                )}
               </div>
             </div>
           </div>

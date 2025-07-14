@@ -48,6 +48,7 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
         print(f"Lock acquired for Request-ID: {request_id}")
         
         try:
+            # Find the maximum number for this prefix in today only
             max_number_query = db.query(func.max(CallNumber.number)).filter(
                 CallNumber.prefix == prefix,
                 func.date(CallNumber.created_date) == today
@@ -60,6 +61,15 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
 
             new_seq = last_seq + 1
             new_number = prefix + str(new_seq).zfill(3)
+            
+            # Kiểm tra xem số này đã tồn tại trong ngày hôm nay chưa
+            existing_number = db.query(CallNumber).filter(
+                CallNumber.number == new_number,
+                func.date(CallNumber.created_date) == today
+            ).first()
+            
+            if existing_number:
+                raise HTTPException(status_code=409, detail=f"Số {new_number} đã tồn tại trong ngày hôm nay")
             
             new_call = CallNumber(
                 number=new_number,

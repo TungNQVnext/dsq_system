@@ -203,6 +203,7 @@
   padding: 1.5rem;
   border-bottom: 1px solid #F3F4F6;
   transition: background-color 0.2s;
+  user-select: none;
 }
 
 .queue-item:hover {
@@ -238,7 +239,7 @@
   flex-direction: column;
 }
 
-.current-serving-container {
+.number-display-container {
   background-color: white;
   border-radius: 0.75rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -247,7 +248,7 @@
   padding: 1.5rem;
 }
 
-.current-serving-title {
+.number-display-title {
   font-size: 1.25rem;
   font-weight: 600;
   color: #111827;
@@ -262,6 +263,7 @@
   background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
   border-radius: 0.75rem;
   border: 1px solid #BFDBFE;
+  user-select: none;
 }
 
 .current-number {
@@ -311,6 +313,7 @@
   background-color: white;
   border: 1px solid #D1D5DB;
   color: #374151;
+  user-select: none;
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -322,6 +325,7 @@
   background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: white;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  user-select: none;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -368,6 +372,7 @@
   background-color: #15803D;
   color: white;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  user-select: none;
 }
 
 .btn-success:hover:not(:disabled) {

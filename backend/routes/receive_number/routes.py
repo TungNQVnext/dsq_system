@@ -10,11 +10,10 @@ router = APIRouter()
 
 @router.get("/call-numbers")
 def get_call_numbers(db: Session = Depends(get_db)):
-    """Lấy danh sách call numbers từ table call_number, sắp xếp theo updated_date mới nhất"""
     call_numbers = (
         db.query(CallNumber)
         .filter(CallNumber.status.in_(["ready", "serving", "completed", "cancel"]))
-        .order_by(CallNumber.updated_date.desc())
+        .order_by(CallNumber.updated_date)
         .all()
     )
     
