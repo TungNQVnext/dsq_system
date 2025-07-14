@@ -135,6 +135,7 @@ dmypy.json
 *.db
 *.sqlite
 *.sqlite3
+dsq.db
 
 # IDE files
 .vscode/
@@ -156,3 +157,14 @@ Thumbs.db
 *.wav
 *.mp3
 *.ogg
+
+# Node modules
+node_modules/
+.npm
+
+# Logs
+*.log
+
+# Build outputs
+dist/
+build/

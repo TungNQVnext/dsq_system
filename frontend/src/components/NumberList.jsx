@@ -72,7 +72,6 @@ export const NumberList = ({
           value={searchTerm}
           onChange={(e) => {
             const value = e.target.value;
-            // Chỉ cho phép số (0-9) và tối đa 4 ký tự
             const numbersOnly = value.replace(/[^0-9]/g, "");
             if (numbersOnly.length <= 4) {
               onSearchChange(numbersOnly);

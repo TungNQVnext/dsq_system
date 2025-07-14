@@ -301,7 +301,7 @@ html, body {
 }
 
 body {
-  background-color: #ffffff; /* nếu có tailwind default màu tím */
+  background-color: #ffffff; /* Màu nền trắng mặc định */
 }
 #root, #app {
   height: 100%;

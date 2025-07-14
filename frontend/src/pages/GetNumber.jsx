@@ -10,10 +10,13 @@ const GetNumber = () => {
   useAuthGuard();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [loading, setLoading] = useState(false);
-  const hasCalledAPI = useRef(false);
+  const hasCalledRef = useRef(false); 
+  const [requestId] = useState(() => Math.random().toString(36)); 
   const navigate = useNavigate();
   const location = useLocation();
   const prefix = location.state?.prefix;
+
+  console.log(`🔵 GetNumber component mounted with requestId: ${requestId}, prefix: ${prefix}`);
 
   useEffect(() => {
     if (!prefix) {
@@ -21,26 +24,33 @@ const GetNumber = () => {
       return;
     }
     
-    if (prefix && !hasCalledAPI.current) {
-      hasCalledAPI.current = true;
+    // Only generate number once using ref
+    if (prefix && !hasCalledRef.current) {
+      hasCalledRef.current = true; // Set immediately to prevent double calls
       handleGetNumber();
     }
-  }, [prefix]);
+  }, [prefix]); // Remove hasGenerated from dependencies
 
   const handleGetNumber = async () => {
-    if (loading || currentNumber) {
+    if (loading) {
       return;
     }
     
     setLoading(true);
+    
+    const startTime = Date.now();
     try {
       const res = await fetch(`${API_URL}/call/number`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Request-ID": requestId 
+        },
         body: JSON.stringify({ prefix })
       });
+      
       const data = await res.json();
-      console.log("Dữ liệu từ backend:", data);
+      const endTime = Date.now();
       setCurrentNumber(data.number);
 
       setTimeout(() => {
@@ -48,7 +58,7 @@ const GetNumber = () => {
       }, 20000);
     } catch (err) {
       alert("Lỗi lấy số, vui lòng thử lại.");
-      hasCalledAPI.current = false;
+      hasCalledRef.current = false; 
     }
     setLoading(false);
   };
@@ -63,9 +73,7 @@ const GetNumber = () => {
         <h1 className="number-display">{currentNumber}</h1>
       )}
       {currentNumber && (
-        <button onClick={() => navigate("/get-number-option")} className="back-button">
-          Quay lại
-        </button>
+        <button onClick={() => navigate("/get-number-option")} className="back-button">Quay lại</button>
       )}
     </div>
     </>
