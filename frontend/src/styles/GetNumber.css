@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Inter", "Noto Sans", "Segoe UI", "Roboto", system-ui, sans-serif;
   background-color: #f1f5f9;
   text-align: center;
   padding: 1rem;

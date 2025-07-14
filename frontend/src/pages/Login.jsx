@@ -12,7 +12,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Kiểm tra đăng nhập bằng cookie
     fetch(`${API_URL}/auth/me`, { credentials: "include" })
       .then(res => {
         if (res.ok) navigate("/menu");
@@ -27,10 +26,9 @@ const Login = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include", // Để nhận cookie
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Đăng nhập thất bại");
-      // Không lưu localStorage nữa
       navigate("/menu");
     } catch (err) {
       setError("Sai tên đăng nhập hoặc mật khẩu");
