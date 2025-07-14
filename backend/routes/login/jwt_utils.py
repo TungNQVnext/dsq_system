@@ -5,9 +5,8 @@ from fastapi import Request, HTTPException, status, Depends, Response
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load SECRET_KEY từ .env
-backend_env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(backend_env_path)
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 SECRET_KEY = os.getenv("SECRET_KEY", "your-very-strong-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
