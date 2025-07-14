@@ -17,14 +17,32 @@ html {
   overflow: hidden;
 }
 
+
 /* Header */
 .display-header {
   display: flex;
   justify-content: space-between;
   padding: 20px 40px;
-  background: rgba(157, 0, 255, 0.99);
+  background: #3b82f6;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+
+.display-logo-overlay {
+  position: absolute;
+  width: 175px;
+  height: 150px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.display-logo-overlay img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
 }
 
 .display-header-section {
@@ -49,7 +67,7 @@ html {
 
 /* Main content */
 .display-main {
-  background: rgb(16, 229, 193);
+  background: white;
   display: flex;
   flex: 1;
   padding: 40px;
@@ -74,13 +92,13 @@ html {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(239, 10, 227, 0.99);
+  background: #3b82f6;
   border-radius: 15px;
-  flex: 1;
 }
 
+
 .display-counter-number {
-  padding: 20px;
+  padding: 10px;
   text-align: center;
   font-size: 7rem;
   font-weight: 700;
@@ -95,7 +113,7 @@ html {
 
 
 .display-serving-item {
-  padding: 20px;
+  padding: 10px;
   text-align: center;
   font-size: 6rem;
   font-weight: 700;
@@ -110,7 +128,7 @@ html {
 
 /* Previously called section */
 .display-previous {
-  background: rgb(94, 255, 0);
+  background: #3b82f6;
   padding: 20px 40px;
   border-top: 1px solid rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
@@ -154,11 +172,13 @@ html {
 
 .display-previous-number {
   border: 1px solid rgba(0, 0, 0, 0.3);
+  background: white;
+
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 1.4rem;
   font-weight: 600;
-  color: #fff;
+  color: #3b82f6;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(5px);
   transition: all 0.3s ease;

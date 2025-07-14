@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/DisplayScreen.css";
+import logo from "../assets/Emblem_of_Vietnam.svg";
 
 export const DisplayScreen = () => {
   // Fake data for demonstration
@@ -31,8 +32,14 @@ export const DisplayScreen = () => {
 
   return (
     <div className="display-screen-container">
+      {/* Logo Overlay */}
+      <div className="display-logo-overlay">
+        <img src={logo} alt="logo" />
+      </div>
+
       {/* Header */}
       <div className="display-header">
+        
         <div className="display-header-section">
           <div className="display-header-title">Quầy</div>
           <div className="display-header-subtitle">カウンター</div>
@@ -76,12 +83,12 @@ export const DisplayScreen = () => {
           <span>Số đã gọi qua </span>
           <span>(呼び出し済み番号)</span>
         </div>
-        <div className="display-previous-subtitle">
+        {/* <div className="display-previous-subtitle">
           (vui lòng liên hệ nhân viên nếu thấy số của bạn)
         </div>
         <div className="display-previous-subtitle-jp">
           (お客様の番号が表示されている場合は、スタッフにお声がけください)
-        </div>
+        </div> */}
         <div className="display-previous-numbers">
           {previouslyCalled.map((item, index) => (
             <span key={index} className="display-previous-number">
