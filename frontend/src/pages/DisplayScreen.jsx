@@ -45,28 +45,25 @@ export const DisplayScreen = () => {
 
       {/* Main content */}
       <div className="display-main">
-        {/* Counter numbers (left side) */}
-        <div className="display-counters">
-          {[1, 2, 3].map((counter) => (
-            <div key={counter} className="display-counter-item">
-              {counter}
-            </div>
-          ))}
-        </div>
-
+     
         {/* Serving numbers (right side) */}
         <div className="display-serving">
           {[1, 2, 3].map((counter) => {
             const servingNumber = getServingNumber(counter);
             const displayNumber = hasServingNumbers ? (servingNumber || "準備中") : "準備中";
-            const isActive = displayNumber !== "準備中";
+            const counterNumber = counter;
             
             return (
               <div 
                 key={counter} 
-                className={`display-serving-item ${isActive ? 'active' : ''}`}
+                className="display-counter-item"
               >
-                {displayNumber}
+                <div className="display-counter-number">
+                  {counterNumber}
+                </div>
+                <div className="display-serving-item">
+                  {displayNumber}
+                </div>
               </div>
             );
           })}

@@ -71,17 +71,21 @@ html {
 }
 
 .display-counter-item {
-  background: rgba(0, 38, 255, 0.99);
-  border: 2px solid rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(239, 10, 227, 0.99);
   border-radius: 15px;
-  padding: 30px;
+  flex: 1;
+}
+
+.display-counter-number {
+  padding: 20px;
   text-align: center;
   font-size: 7rem;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
   flex: 1;
   display: flex;
   align-items: center;
@@ -91,23 +95,17 @@ html {
 
 
 .display-serving-item {
-  background: rgba(255, 251, 0, 0.99);
-  border: 2px solid rgba(0, 0, 0, 0.5);
-  border-radius: 15px;
   padding: 20px;
   text-align: center;
   font-size: 6rem;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 
 
 /* Previously called section */
