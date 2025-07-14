@@ -357,7 +357,7 @@ const ReceiveNumber = () => {
     if (!subscribe) return;
     
     const unsubscribe = subscribe("call_number_updated", (message) => {
-      console.log("📡 Real-time update received:", message);
+      console.log("Real-time update received:", message);
       // Auto-update when call numbers change
       fetchCallNumbers();
     });
@@ -539,13 +539,6 @@ const ReceiveNumber = () => {
 
               {/* Action Buttons */}
               <div className="action-buttons">
-                <button 
-                  onClick={handleCallAgain}
-                  disabled={!currentNumber || actionLoading}
-                  className="action-button btn-secondary"
-                >
-                  Gọi lại
-                </button>
                 {activeTab !== 'cancel' && activeTab !== 'completed' && (
                   <button 
                     onClick={handleSkip}
@@ -575,7 +568,7 @@ const ReceiveNumber = () => {
             disabled={waitingCount === 0}
             className="bottom-button btn-success"
           >
-            Gọi tiếp
+            Gọi
           </button>
           
          

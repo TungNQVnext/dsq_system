@@ -23,7 +23,6 @@ export const TVDisplay = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [currentPage, setCurrentPage] = useState(0);
 
-  // ✅ Fetch từ DB khi khởi tạo
   const fetchInitialRecords = useCallback(async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/return_record/waiting`);
@@ -64,7 +63,6 @@ export const TVDisplay = ({
       ? chunkArray(currentPageCalls.map((r) => r.profileCode?.padStart(4, "0")), 4)
       : [];
 
-  // ✅ Nhận WebSocket cập nhật realtime
   const handleAllMessages = useCallback((message) => {
     if (message.type === "call") {
       const raw = message.number;

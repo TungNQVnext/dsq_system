@@ -34,7 +34,6 @@ export const RecordItem = ({
   return (
     <div className="record-item">
       <div className="record-item-content">
-        {/* Bên trái */}
         <div className="record-item-info">
           <div className="record-item-code">{record.record_number?.toString().padStart(4,"0")}</div>
           <div className="record-item-details">
@@ -46,7 +45,6 @@ export const RecordItem = ({
           </div>
         </div>
 
-        {/* Bên phải */}
         <div className="record-item-actions">
           <div className="record-item-buttons">
             <div className="record-item-status-center">

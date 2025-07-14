@@ -27,6 +27,7 @@
   font-weight: bold;
   color: #111827;
   margin: 0;
+  user-select: none;
 }
 
 .controls-section {
@@ -40,11 +41,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  user-select: none;
 }
 
 .control-label {
   color: #374151;
   font-weight: 500;
+  user-select: none;
 }
 
 .control-select {
@@ -56,6 +59,7 @@
   font-size: 0.875rem;
   outline: none;
   transition: all 0.2s;
+  user-select: none;
 }
 
 .control-select:focus {
@@ -113,11 +117,13 @@
   font-weight: 600;
   color: #111827;
   margin: 0 0 1rem 0;
+  user-select: none;
 }
 
 .nationality-filter {
   display: flex;
   gap: 0.75rem;
+  user-select: none;
 }
 
 .nationality-select {
@@ -130,6 +136,7 @@
   font-size: 0.875rem;
   outline: none;
   transition: all 0.2s;
+  user-select: none;
 }
 
 .nationality-select:focus {
@@ -254,6 +261,7 @@
   color: #111827;
   margin-bottom: 1.5rem;
   text-align: center;
+  user-select: none;
 }
 
 .current-number-display {
@@ -383,6 +391,7 @@
   background-color: white;
   border: 1px solid #D1D5DB;
   color: #374151;
+  user-select: none;
 }
 
 .btn-outline:hover:not(:disabled) {
