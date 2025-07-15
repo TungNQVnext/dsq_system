@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { API_URL } from "../setting";
+import { API_URL } from "../../setting";
 import { useNavigate } from "react-router-dom";
 
 export function useAuthGuard() {

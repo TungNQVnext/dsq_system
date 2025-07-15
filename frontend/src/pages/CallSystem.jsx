@@ -4,8 +4,8 @@ import { Footer } from "../components/Footer";
 import { ControlPanel } from "../components/ControlPanel";
 import { NumberList } from "../components/NumberList";
 
-import { useCallSystem } from "../hooks/useCallSystem";
-import { useAuthGuard } from "../hooks/useAuthGuard";
+import { useCallSystem } from "../hooks/returnNumberHook/useCallSystem";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import "../styles/CallSystem.css";
 import { getFilterCounts } from "../utils/utils";
 

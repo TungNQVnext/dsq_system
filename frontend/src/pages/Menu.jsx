@@ -84,7 +84,7 @@ const Menu = () => {
         )}
         {showForAdmin && (
           <button onClick={() =>{
-            window.open("_blank");
+            window.open("/receive-number-display","_blank");
           }} className="menu-button">
             Màn hình thông báo nhận kết quả
           </button>

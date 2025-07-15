@@ -5,7 +5,8 @@ from routes.login.routes import router as auth_router
 from routes.touchpad_display.routes import router as touchpad_display_router
 from routes.return_number.routes import router as return_router
 from routes.receive_number.routes import router as receive_router
-from websocket_backend.ws_handler import websocket_endpoint
+from websocket_backend.return_number.ws_handler import websocket_endpoint
+from websocket_backend.receive_number.ws_handler import websocket_endpoint as receive_websocket_endpoint
 from db.database import Base, engine
 import socket
 from pathlib import Path
@@ -79,7 +80,11 @@ app.include_router(touchpad_display_router)
 app.include_router(return_router, prefix="/return_record")
 app.include_router(receive_router, prefix="/receive_number")
 
-#  Mount WebSocket endpoint
+#  Mount WebSocket endpoints
 @app.websocket("/ws")
 async def websocket_route(websocket: WebSocket):
     await websocket_endpoint(websocket)
+
+@app.websocket("/receive-ws")
+async def receive_websocket_route(websocket: WebSocket):
+    await receive_websocket_endpoint(websocket)

@@ -5,7 +5,7 @@ from models.record import Record
 from db.database import get_db
 import re
 
-from textToSpeak import add_to_queue
+from textToSpeak.returnNumber import add_to_queue
 
 router = APIRouter()
 

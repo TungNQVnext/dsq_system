@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useWebSocket } from "../hooks/useWebSocket";
-import { useAuthGuard } from "../hooks/useAuthGuard";
-import "../styles/TVDisplay.css";
+import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+import "../styles/ReturnNumberDisplay.css";
 import logo from "../assets/Emblem_of_Vietnam.svg";
 
 const chunkArray = (array, size) => {
@@ -12,7 +12,7 @@ const chunkArray = (array, size) => {
   return chunkedArr;
 };
 
-export const TVDisplay = ({
+export const ReturnNumberDisplay = ({
   counterTitle = "QUẦY 3 - TRẢ KẾT QUẢ",
   counterTitleJA = "カウンター3 - 結果返却窓口",
 }) => {
