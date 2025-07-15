@@ -26,12 +26,10 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(f"✅ WebSocket connected. Total connections: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-        logger.info(f"❌ WebSocket disconnected. Total connections: {len(self.active_connections)}")
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         try:
@@ -59,7 +57,6 @@ async def broadcast_status(message_dict):
     try:
         message = json.dumps(message_dict)
         await manager.broadcast(message)
-        logger.info(f"📡 Broadcasted: {message}")
     except Exception as e:
         logger.error(f"Error broadcasting status: {e}")
 

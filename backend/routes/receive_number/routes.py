@@ -32,7 +32,7 @@ def get_call_numbers(db: Session = Depends(get_db)):
             "prefix": call_number.prefix,
             "nationality": nationality,
             "status": call_number.status,
-            "counter": call_number.counter,  # Include counter field
+            "counter": call_number.counter,
             "created_date": call_number.created_date,
             "updated_date": call_number.updated_date
         })
@@ -55,7 +55,7 @@ def update_call_number_status(call_number_id: int, new_status: str, background_t
     # Only update updated_date when transitioning to final states
     if new_status in ["completed", "cancel"]:
         call_number.updated_date = datetime.now()
-        call_number.counter = None  # Clear counter when completed or cancelled
+        call_number.counter = None  
         
     db.commit()
     db.refresh(call_number)
@@ -172,10 +172,8 @@ def call_number(request_data: dict, background_tasks: BackgroundTasks, db: Sessi
     if call_number.status not in ["ready", "serving"]:
         raise HTTPException(status_code=400, detail="Call number is not ready to be called")
     
-    # Update status to serving (don't update updated_date when calling)
     call_number.status = "serving"
     call_number.counter = counter
-    # Don't update updated_date when transitioning from ready to serving
     db.commit()
     db.refresh(call_number)
     

@@ -38,7 +38,6 @@ def handle_reading_end(number_str: str):
             if call_number.status != "serving":
                 logger.info(f"Changing status of call number {call_number.number} to 'serving'")
                 call_number.status = "serving"
-                # Don't update updated_date when transitioning to serving
                 
         db.commit()
         logger.info("DB update committed for call numbers.")
