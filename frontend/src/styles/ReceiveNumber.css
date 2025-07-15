@@ -259,7 +259,6 @@
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
-  background-color: #E5E7EB;
   color: #6B7280;
   white-space: nowrap;
   display: table-cell;
@@ -440,10 +439,9 @@
 .queue-nationality {
   font-size: 0.75rem;
   color: #6B7280;
-  line-height: 1.25rem; /* Match number line-height for consistent alignment */
+  line-height: 1.25rem; 
 }
-  line-height: 1.25rem; /* Match number line-height for consistent alignment */
-}
+  
 
 .right-panel {
   display: flex;
