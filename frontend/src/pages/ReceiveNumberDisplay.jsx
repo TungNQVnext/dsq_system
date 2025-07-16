@@ -4,8 +4,10 @@ import logo from "../assets/Emblem_of_Vietnam.svg";
 import { API_URL } from "../setting";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 
 export const ReceiveNumberDisplay = () => {
+  useAuthGuard();
   const [currentServing, setCurrentServing] = useState({
     1: "",
     2: "",

@@ -7,6 +7,9 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 const GetNumber = () => {
+  useEffect(() => {
+    document.title = "Lấy số thứ tự";
+  }, []);
   useAuthGuard();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -15,8 +18,6 @@ const GetNumber = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const prefix = location.state?.prefix;
-
-  console.log(`🔵 GetNumber component mounted with requestId: ${requestId}, prefix: ${prefix}`);
 
   useEffect(() => {
     if (!prefix) {
@@ -29,7 +30,7 @@ const GetNumber = () => {
       hasCalledRef.current = true; // Set immediately to prevent double calls
       handleGetNumber();
     }
-  }, [prefix]); // Remove hasGenerated from dependencies
+  }, [prefix]);
 
   const handleGetNumber = async () => {
     if (loading) {

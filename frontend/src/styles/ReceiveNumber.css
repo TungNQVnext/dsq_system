@@ -1,5 +1,32 @@
 /* ReceiveNumber Component Styles */
 
+/* Common input styles for consistent height */
+.input-height-consistent {
+  height: 38px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  background-color: white;
+  color: #374151;
+  font-size: 0.875rem;
+  line-height: normal;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  vertical-align: top;
+}
+
+/* Reset for consistent form element heights */
+.search-input,
+.nationality-select {
+  min-height: 38px;
+  max-height: 38px;
+  display: inline-block;
+}
+
 .receive-number-container {
   min-height: 100vh;
   display: flex;
@@ -131,26 +158,53 @@
 .header-controls {
   display: flex;
   gap: 1rem;
-  align-items: flex-start;
+  align-items: center;
 }
 
-.search-container {
-  position: relative;
-  flex: 1;
-  user-select: none;
-}
-
-.search-input {
-  width: 100%;
+/* Common input height styles */
+.input-standard-height {
+  height: 38px;
   padding: 0.5rem 0.75rem;
   border: 1px solid #D1D5DB;
   border-radius: 0.5rem;
   background-color: white;
   color: #374151;
   font-size: 0.875rem;
+  line-height: 1.25rem;
   outline: none;
   transition: all 0.2s;
   box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.search-container {
+  position: relative;
+  flex: 1;
+  user-select: none;
+  height: 38px;
+}
+
+.search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  background-color: white;
+  color: #374151;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  vertical-align: middle;
+  margin: 0;
+  font-family: inherit;
 }
 
 .search-input:focus {
@@ -274,19 +328,35 @@
   gap: 0.75rem;
   user-select: none;
   min-width: 200px;
+  height: 38px;
+  align-items: center;
 }
 
 .nationality-select {
   flex: 1;
+  height: 38px;
   padding: 0.5rem 0.75rem;
   border: 1px solid #D1D5DB;
   border-radius: 0.5rem;
   background-color: white;
   color: #374151;
   font-size: 0.875rem;
+  line-height: 1.5;
   outline: none;
   transition: all 0.2s;
   user-select: none;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  vertical-align: middle;
+  margin: 0;
+  font-family: inherit;
 }
 
 .nationality-select:focus {
@@ -631,6 +701,43 @@
   border-color: #9CA3AF;
 }
 
+/* Back to Menu Button */
+.back-to-menu-container {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  z-index: 100;
+}
+
+.btn-back-to-menu {
+  background-color: #28a745;
+  color: white !important;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+  user-select: none;
+}
+
+.btn-back-to-menu:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.btn-back-to-menu:active {
+  transform: translateY(0);
+}
+
 /* Responsive design for search functionality */
 @media (max-width: 768px) {
   .header-controls {
@@ -668,5 +775,17 @@
   
   .search-result-status {
     align-self: flex-end;
+  }
+  
+  .back-to-menu-container {
+    position: fixed;
+    bottom: 75px;
+    left: 15px;
+  }
+  
+  .btn-back-to-menu {
+    padding: 10px 16px;
+    font-size: 13px;
+    min-width: 120px;
   }
 }

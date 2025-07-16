@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from routes.login.routes import router as auth_router
+from routes.user_management.routes import router as user_management_router
 from routes.touchpad_display.routes import router as touchpad_display_router
 from routes.return_number.routes import router as return_router
 from routes.receive_number.routes import router as receive_router
@@ -76,6 +77,7 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router, prefix="/auth")
+app.include_router(user_management_router, prefix="/admin")
 app.include_router(touchpad_display_router)
 app.include_router(return_router, prefix="/return_record")
 app.include_router(receive_router, prefix="/receive_number")

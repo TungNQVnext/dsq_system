@@ -7,6 +7,9 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 const GetNumberOption = () => {
+  useEffect(() => {
+    document.title = "Lấy số thứ tự"; 
+  }, []);
   useAuthGuard();
 
   const navigate = useNavigate();

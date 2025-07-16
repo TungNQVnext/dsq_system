@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { LANGUAGES } from "../constants/constants";
@@ -6,8 +7,11 @@ import { API_URL } from "../setting";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
 import "../styles/ReceiveNumber.css";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 
 const ReceiveNumber = () => {
+  useAuthGuard();
+  const navigate = useNavigate();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [queueItems, setQueueItems] = useState([]);
   const [allItems, setAllItems] = useState([]); // Store all items for filtering
@@ -113,13 +117,36 @@ const ReceiveNumber = () => {
     return isCounterServing;
   };
 
-  // Check if calling is allowed (same logic as the main call button)
+  // Check if calling is allowed for main call button (requires currentNumber)
   const isCallingAllowed = () => {
-    return currentNumber && 
+    const allowed = currentNumber && 
            !isCalling && 
            !isSpeaking && 
            !actionLoading && 
-           !(currentNumber && currentNumber.status === 'serving') && 
+           ['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status) && 
+           !isCurrentCounterServing();
+    
+    // Debug log to see why calling might be blocked
+    if (!allowed && currentNumber) {
+      console.log('Calling blocked:', {
+        currentNumber: !!currentNumber,
+        status: currentNumber?.status,
+        isCalling,
+        isSpeaking,
+        actionLoading,
+        isCounterServing: isCurrentCounterServing(),
+        statusIncluded: ['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status)
+      });
+    }
+    
+    return allowed;
+  };
+
+  // Check if calling is allowed for search (doesn't require currentNumber, only checks counter status)
+  const isSearchCallingAllowed = () => {
+    return !isCalling && 
+           !isSpeaking && 
+           !actionLoading && 
            !isCurrentCounterServing();
   };
 
@@ -264,7 +291,7 @@ const ReceiveNumber = () => {
     let filteredItems = [];
     switch (tab) {
       case 'ready':
-        // Include both ready and serving items in the ready tab
+        // Include ready and serving statuses only (truly callable numbers)
         filteredItems = todayItems.filter(item => item.status === 'ready' || item.status === 'serving');
         break;
       case 'cancel':
@@ -507,11 +534,11 @@ const ReceiveNumber = () => {
           // ALWAYS show what this counter is serving (keep the current serving number)
           setCurrentNumber(createCurrentNumberObject(newCounterServingItem));
         } else {
-          // PRIORITY 2: Only show next ready number if counter is not serving anything
-          const readyItems = todayItems.filter(item => item.status === 'ready');
-          const nextReady = readyItems[0];
-          if (nextReady) {
-            setCurrentNumber(createCurrentNumberObject(nextReady));
+          // PRIORITY 2: Show next callable number if counter is not serving anything
+          const callableItems = todayItems.filter(item => ['ready', 'serving', 'cancel', 'completed'].includes(item.status));
+          const nextCallable = callableItems[0];
+          if (nextCallable) {
+            setCurrentNumber(createCurrentNumberObject(nextCallable));
           } else {
             setCurrentNumber(null); 
           }
@@ -610,6 +637,9 @@ const ReceiveNumber = () => {
     const queryLower = query.trim().toLowerCase();
     
     const results = todayItems.filter(item => {
+      // Show all numbers (they can all be called)
+      if (!['ready', 'serving', 'cancel', 'completed'].includes(item.status)) return false;
+      
       // Get the properly formatted display number
       const displayNumber = getDisplayNumber(item);
       const numberOnly = item.number ? item.number.toString() : '';
@@ -627,8 +657,8 @@ const ReceiveNumber = () => {
 
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchResults.length > 0) {
-      // Only call if calling is allowed (same conditions as main call button)
-      if (isCallingAllowed()) {
+      // Use search-specific calling check (doesn't require currentNumber)
+      if (isSearchCallingAllowed()) {
         const firstResult = searchResults[0];
         handleCallNumber(firstResult.id);
         setSearchQuery('');
@@ -659,8 +689,8 @@ const ReceiveNumber = () => {
   };
 
   const handleSearchResultClick = (result) => {
-    // Only call if calling is allowed (same conditions as main call button)
-    if (isCallingAllowed()) {
+    // Use search-specific calling check (doesn't require currentNumber)
+    if (isSearchCallingAllowed()) {
       handleCallNumber(result.id);
     }
     setSearchQuery('');
@@ -746,7 +776,7 @@ const ReceiveNumber = () => {
                           </div>
                         ) : (
                           <div>
-                            {!isCallingAllowed() && (
+                            {!isSearchCallingAllowed() && (
                               <div className="search-warning">
                                 Không thể gọi số khi quầy đang phục vụ
                               </div>
@@ -754,9 +784,9 @@ const ReceiveNumber = () => {
                             {searchResults.map((result, index) => (
                               <div 
                                 key={result.id || index}
-                                className={`search-result-item ${!isCallingAllowed() ? 'disabled' : ''}`}
+                                className={`search-result-item ${!isSearchCallingAllowed() ? 'disabled' : ''}`}
                                 onMouseDown={() => handleSearchResultClick(result)}
-                                title={!isCallingAllowed() ? 'Không thể gọi số khi quầy đang phục vụ' : ''}
+                                title={!isSearchCallingAllowed() ? 'Không thể gọi số khi quầy đang phục vụ' : ''}
                               >
                                 <span className="search-result-number">
                                   {getDisplayNumber(result)}
@@ -905,13 +935,23 @@ const ReceiveNumber = () => {
         <div className="bottom-controls">
           <button 
             onClick={() => handleCallNumber()}
-            disabled={!currentNumber || isCalling || isSpeaking || actionLoading || (currentNumber && currentNumber.status === 'serving') || isCurrentCounterServing()}
-            className={`bottom-button ${isCalling || isSpeaking || (currentNumber && currentNumber.status === 'serving') || isCurrentCounterServing() ? 'btn-disabled' : 'btn-success'}`}
+            disabled={!currentNumber || isCalling || isSpeaking || actionLoading || !['ready', 'serving', 'cancel', 'completed'].includes(currentNumber?.status) || isCurrentCounterServing()}
+            className={`bottom-button ${isCalling || isSpeaking || !['ready', 'serving', 'cancel', 'completed'].includes(currentNumber?.status) || isCurrentCounterServing() ? 'btn-disabled' : 'btn-success'}`}
           >
             {isCalling ? 'Đang gọi...' : 
              isSpeaking ? 'Đang phát âm thanh...' : 
              (currentNumber && currentNumber.status === 'serving') ? 'Đang phục vụ' : 
              isCurrentCounterServing() ? 'Đang phục vụ' : 'Gọi'}
+          </button>
+        </div>
+
+        {/* Back to Menu Button */}
+        <div className="back-to-menu-container">
+          <button 
+            className="btn-back-to-menu"
+            onClick={() => navigate('/menu')}
+          >
+            ← Quay về Menu
           </button>
         </div>
       </div>

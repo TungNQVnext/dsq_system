@@ -6,6 +6,7 @@ import GetNumber from "./pages/GetNumber";
 import GetNumberOption from "./pages/GetNumberOption";
 import CallSystem from "./pages/CallSystem"
 import ReceiveNumber from "./pages/ReceiveNumber";
+import UserManagement from "./pages/UserManagement";
 import { ReturnNumberDisplay } from "./components/ReturnNumberDisplay";
 import {ReceiveNumberDisplay} from "./pages/ReceiveNumberDisplay";
 
@@ -22,6 +23,7 @@ function App(){
         <Route path="/return-record-display" element={<ReturnNumberDisplay />} />
         <Route path="/receive-number-control" element={<ReceiveNumber />} />
         <Route path="/receive-number-display" element={<ReceiveNumberDisplay />} />
+        <Route path="/user-management" element={<UserManagement />} />
       </Routes>
     </BrowserRouter>
   );

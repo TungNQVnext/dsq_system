@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { ControlPanel } from "../components/ControlPanel";
@@ -17,6 +18,7 @@ import { getFilterCounts } from "../utils/utils";
  */
 export default function CallSystem() {
   useAuthGuard();
+  const navigate = useNavigate();
 
   const {
     // State
@@ -53,15 +55,6 @@ export default function CallSystem() {
 
   useEffect(() => {
     document.title = "Bảng điều khiển";
-    const favicon = document.querySelector("link[rel='icon']");
-    if (favicon) {
-      favicon.href = "/dsq_icon.ico";
-    } else {
-      const newFavicon = document.createElement("link");
-      newFavicon.rel = "icon";
-      newFavicon.href = "/dsq_icon.ico";
-      document.head.appendChild(newFavicon);
-    }
   }, []);
 
   return (
@@ -109,6 +102,16 @@ export default function CallSystem() {
             onRevertToWaiting={handleRevertToWaiting}
           />
         </div>
+      </div>
+
+      {/* Back to Menu Button */}
+      <div className="back-to-menu-container">
+        <button 
+          className="btn-back-to-menu"
+          onClick={() => navigate('/menu')}
+        >
+          ← Quay về Menu
+        </button>
       </div>
 
       <Footer />

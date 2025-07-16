@@ -169,8 +169,8 @@ def call_number(request_data: dict, background_tasks: BackgroundTasks, db: Sessi
     if not call_number:
         raise HTTPException(status_code=404, detail="Call number not found")
     
-    if call_number.status not in ["ready", "serving"]:
-        raise HTTPException(status_code=400, detail="Call number is not ready to be called")
+    # Allow calling numbers with any status - all can be recalled
+    # When called, status will be changed to "serving"
     
     call_number.status = "serving"
     call_number.counter = counter
