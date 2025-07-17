@@ -2,11 +2,14 @@ import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
-import { useAuthGuard } from "../hooks/useAuthGuard";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 const GetNumber = () => {
+  useEffect(() => {
+    document.title = "Lấy số thứ tự";
+  }, []);
   useAuthGuard();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -15,8 +18,6 @@ const GetNumber = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const prefix = location.state?.prefix;
-
-  console.log(`🔵 GetNumber component mounted with requestId: ${requestId}, prefix: ${prefix}`);
 
   useEffect(() => {
     if (!prefix) {
@@ -29,7 +30,7 @@ const GetNumber = () => {
       hasCalledRef.current = true; // Set immediately to prevent double calls
       handleGetNumber();
     }
-  }, [prefix]); // Remove hasGenerated from dependencies
+  }, [prefix]);
 
   const handleGetNumber = async () => {
     if (loading) {

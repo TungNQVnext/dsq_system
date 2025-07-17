@@ -5,7 +5,7 @@ from typing import List
 from fastapi import WebSocket, WebSocketDisconnect
 import asyncio
 
-from textToSpeak import (
+from textToSpeak.returnNumber import (
     add_to_queue,
     start_worker,
     normalize_number,

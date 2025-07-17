@@ -9,5 +9,6 @@ class CallNumber(Base):
     number = Column(String, index=True)
     prefix = Column(String, index=True)
     status = Column(String, nullable=False, index=True)
+    counter = Column(String, nullable=True, index=True)
     created_date = Column(DateTime, default=datetime.datetime.now, index=True)
-    updated_date = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now, index=True)
+    updated_date = Column(DateTime, default=datetime.datetime.now, index=True)

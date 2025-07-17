@@ -5,4 +5,4 @@ passlib
 pydantic
 sqlalchemy
 python-jose[cryptography]
-
+gTTS

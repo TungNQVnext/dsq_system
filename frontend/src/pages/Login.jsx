@@ -17,20 +17,49 @@ const Login = () => {
         if (res.ok) navigate("/menu");
       });
   }, [navigate]);
+  useEffect(() => {
+    document.title = "Đăng nhập";
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      // Use token-based login first
+      const tokenResponse = await fetch(`${API_URL}/auth/login-token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include",
       });
-      if (!response.ok) throw new Error("Đăng nhập thất bại");
+
+      if (!tokenResponse.ok) {
+        throw new Error("Đăng nhập thất bại");
+      }
+
+      const tokenData = await tokenResponse.json();
+      
+      // Save token and user data
+      localStorage.setItem('token', tokenData.access_token);
+      localStorage.setItem('user', JSON.stringify(tokenData.user));
+      
+      console.log('Login successful, token saved:', tokenData.access_token.substring(0, 20) + '...');
+      console.log('User data saved:', tokenData.user);
+
+      // Also do cookie-based login for backward compatibility
+      try {
+        await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+          credentials: "include",
+        });
+      } catch (cookieErr) {
+        console.warn('Cookie login failed, but token login succeeded');
+      }
+
       navigate("/menu");
     } catch (err) {
+      console.error('Login error:', err);
       setError("Sai tên đăng nhập hoặc mật khẩu");
     }
   };

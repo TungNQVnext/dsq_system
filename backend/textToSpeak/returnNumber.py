@@ -9,7 +9,8 @@ import pygame
 from gtts import gTTS
 import asyncio
 import datetime
-from websocket_backend.record_utils import handle_reading_end
+from websocket_backend.return_number.record_utils import handle_reading_end
+from websocket_backend.receive_number.call_number_utils import handle_reading_end as handle_call_number_reading_end
 
 pygame.mixer.init()
 
@@ -140,11 +141,25 @@ def speak_text(text, lang):
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
         pygame.mixer.music.unload()
+        
+        # Give system time to release file handle
+        time.sleep(0.1)
+        
     except Exception as e:
         logger.error(f"Error during speak_text: {e}")
     finally:
-        if os.path.exists(tmpfile_path):
-            os.remove(tmpfile_path)
+        # Retry cleanup with delay
+        max_attempts = 3
+        for attempt in range(max_attempts):
+            try:
+                if os.path.exists(tmpfile_path):
+                    os.remove(tmpfile_path)
+                    break
+            except Exception as cleanup_error:
+                if attempt == max_attempts - 1:
+                    logger.warning(f"Could not delete temp file {tmpfile_path} after {max_attempts} attempts: {cleanup_error}")
+                else:
+                    time.sleep(0.2)
 
 def speak_english(tokens):
     first_token = tokens[0].lstrip('0') or '0'

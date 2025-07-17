@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { API_URL } from "../setting";
+import { API_URL } from "../../setting";
 
 export const useWebSocket = () => {
   const wsRef = useRef(null);

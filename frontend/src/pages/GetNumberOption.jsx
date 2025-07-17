@@ -2,11 +2,14 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
-import { useAuthGuard } from "../hooks/useAuthGuard";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 const GetNumberOption = () => {
+  useEffect(() => {
+    document.title = "Lấy số thứ tự"; 
+  }, []);
   useAuthGuard();
 
   const navigate = useNavigate();

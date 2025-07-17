@@ -7,7 +7,7 @@ from sqlalchemy import func
 import datetime
 import threading
 import time
-from websocket_backend.ws_handler import manager
+from websocket_backend.return_number.ws_handler import manager
 import json
 
 router = APIRouter(prefix="/call")
@@ -62,7 +62,6 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
             new_seq = last_seq + 1
             new_number = prefix + str(new_seq).zfill(3)
             
-            # Kiểm tra xem số này đã tồn tại trong ngày hôm nay chưa
             existing_number = db.query(CallNumber).filter(
                 CallNumber.number == new_number,
                 func.date(CallNumber.created_date) == today
@@ -104,6 +103,3 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=500, detail=f"Lỗi tạo số: {str(e)}")
-        
-        finally:
-            print(f"🔓 Lock released for Request-ID: {request_id}")
