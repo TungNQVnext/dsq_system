@@ -94,12 +94,13 @@ export const DisplayScreen = () => {
         </div>
         
       </div>
-      <div className="footer-logo">
-          <img src={vnext_logo} alt="logo" />
+      <div className="footer-logo" style={{borderTop : "2px solid rgb(255, 255, 255 )"}}>
           <div className="footer-logo-text">
-            <span>được phát triển bởi</span>
-            <span>VNEXT JAPAN</span>
+            <span> Hệ thống được phát triển bởi</span>
           </div>
+        
+          <img src={vnext_logo} alt="logo" />
+
         </div>
     </div>
   );
