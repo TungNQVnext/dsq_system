@@ -1,6 +1,7 @@
 import React from "react";
 import "../styles/DisplayScreen.css";
 import logo from "../assets/Emblem_of_Vietnam.svg";
+import vnext_logo from "../assets/vnext_logo.png";
 
 export const DisplayScreen = () => {
   // Fake data for demonstration
@@ -83,12 +84,7 @@ export const DisplayScreen = () => {
           <span>Số đã gọi qua </span>
           <span>(呼び出し済み番号)</span>
         </div>
-        {/* <div className="display-previous-subtitle">
-          (vui lòng liên hệ nhân viên nếu thấy số của bạn)
-        </div>
-        <div className="display-previous-subtitle-jp">
-          (お客様の番号が表示されている場合は、スタッフにお声がけください)
-        </div> */}
+ 
         <div className="display-previous-numbers">
           {previouslyCalled.map((item, index) => (
             <span key={index} className="display-previous-number">
@@ -96,7 +92,15 @@ export const DisplayScreen = () => {
             </span>
           ))}
         </div>
+        
       </div>
+      <div className="footer-logo">
+          <img src={vnext_logo} alt="logo" />
+          <div className="footer-logo-text">
+            <span>được phát triển bởi</span>
+            <span>VNEXT JAPAN</span>
+          </div>
+        </div>
     </div>
   );
 };
