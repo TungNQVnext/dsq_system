@@ -470,21 +470,23 @@
 .queue-item-content {
   display: flex;
   align-items: center;
-  gap: 1rem;
   width: 100%;
+  min-height: 3rem;
+  position: relative;
 }
 
 .queue-number {
   font-size: 1.25rem;
   font-weight: bold;
   color: #2563EB;
-  min-width: 80px;
+  width: 160px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   align-items: flex-start;
   line-height: 1.25rem;
+  justify-content: center;
 }
 
 .serving-indicator {
@@ -497,13 +499,16 @@
   text-align: center;
   border: 1px solid #F59E0B;
   white-space: nowrap;
+  max-width: 150px;
+  margin-top: 0.125rem;
 }
 
 .queue-details {
-  flex: 1;
+  position: absolute;
+  right: 1rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .queue-nationality {

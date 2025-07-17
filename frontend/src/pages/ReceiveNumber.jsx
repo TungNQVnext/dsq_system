@@ -122,27 +122,31 @@ const ReceiveNumber = () => {
 
   // Check if calling is allowed for main call button (requires currentNumber)
   const isCallingAllowed = () => {
-    const allowed = currentNumber && 
-           !isCalling && 
-           !isSpeaking && 
-           !actionLoading && 
-           ['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status) && 
-           !isCurrentCounterServing();
+    if (!currentNumber) return false;
     
-    // Debug log to see why calling might be blocked
-    if (!allowed && currentNumber) {
-      console.log('Calling blocked:', {
-        currentNumber: !!currentNumber,
-        status: currentNumber?.status,
-        isCalling,
-        isSpeaking,
-        actionLoading,
-        isCounterServing: isCurrentCounterServing(),
-        statusIncluded: ['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status)
-      });
+    // Basic blocking conditions
+    if (isCalling || isSpeaking || actionLoading) return false;
+    
+    // Must be a valid status
+    if (!['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status)) return false;
+    
+    // Must be able to control this number
+    if (!canControlCurrentNumber()) return false;
+    
+    // Special case: If this counter is serving AND the current number is the one being served by this counter
+    if (isCurrentCounterServing() && currentNumber.status === 'serving') {
+      // Find the item in allItems to check if this counter is serving this specific number
+      const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
+      const servingItem = todayItems.find(item => item.id === currentNumber.id);
+      
+      // Only allow if this counter is serving this specific number
+      return servingItem && servingItem.counter === selectedDoor;
     }
     
-    return allowed;
+    // If counter is serving but current number is not the one being served, don't allow
+    if (isCurrentCounterServing()) return false;
+    
+    return true;
   };
 
   // Check if calling is allowed for search (doesn't require currentNumber, only checks counter status)
@@ -151,6 +155,19 @@ const ReceiveNumber = () => {
            !isSpeaking && 
            !actionLoading && 
            !isCurrentCounterServing();
+  };
+
+  // Check if a specific number can be controlled by current counter
+  const canControlSpecificNumber = (item) => {
+    if (!item) return false;
+    
+    // If the number is serving, only the counter that is serving it can control it
+    if (item.status === 'serving') {
+      return item.counter === selectedDoor;
+    }
+    
+    // For non-serving numbers, any counter can control
+    return true;
   };
 
   // Check if current counter can control the selected number (for skip/complete actions)
@@ -660,9 +677,9 @@ const ReceiveNumber = () => {
 
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchResults.length > 0) {
-      // Use search-specific calling check (doesn't require currentNumber)
-      if (isSearchCallingAllowed()) {
-        const firstResult = searchResults[0];
+      // Check both general calling permission and specific number control
+      const firstResult = searchResults[0];
+      if (isSearchCallingAllowed() && canControlSpecificNumber(firstResult)) {
         handleCallNumber(firstResult.id);
         setSearchQuery('');
         setShowSearchDropdown(false);
@@ -692,8 +709,8 @@ const ReceiveNumber = () => {
   };
 
   const handleSearchResultClick = (result) => {
-    // Use search-specific calling check (doesn't require currentNumber)
-    if (isSearchCallingAllowed()) {
+    // Check both general calling permission and specific number control
+    if (isSearchCallingAllowed() && canControlSpecificNumber(result)) {
       handleCallNumber(result.id);
     }
     setSearchQuery('');
@@ -763,7 +780,7 @@ const ReceiveNumber = () => {
                   <div className="search-container">
                     <input 
                       type="text"
-                      placeholder="Tìm kiếm số..."
+                      placeholder="Tìm kiếm số / Gọi thủ công..."
                       value={searchQuery}
                       onChange={handleSearchChange}
                       onKeyDown={handleSearchKeyDown}
@@ -784,25 +801,33 @@ const ReceiveNumber = () => {
                                 Không thể gọi số khi quầy đang phục vụ
                               </div>
                             )}
-                            {searchResults.map((result, index) => (
-                              <div 
-                                key={result.id || index}
-                                className={`search-result-item ${!isSearchCallingAllowed() ? 'disabled' : ''}`}
-                                onMouseDown={() => handleSearchResultClick(result)}
-                                title={!isSearchCallingAllowed() ? 'Không thể gọi số khi quầy đang phục vụ' : ''}
-                              >
-                                <span className="search-result-number">
-                                  {getDisplayNumber(result)}
-                                </span>
-                                <span className="search-result-nationality">{result.nationality}</span>
-                                <span className="search-result-status">{
-                                  result.status === 'ready' ? 'Sẵn sàng' :
-                                  result.status === 'serving' ? 'Đang phục vụ' :
-                                  result.status === 'completed' ? 'Hoàn tất' :
-                                  result.status === 'cancel' ? 'Đã bỏ qua' : result.status
-                                }</span>
-                              </div>
-                            ))}
+                            {searchResults.map((result, index) => {
+                              const canControlResult = canControlSpecificNumber(result);
+                              const isDisabled = !isSearchCallingAllowed() || !canControlResult;
+                              const titleText = !isSearchCallingAllowed() ? 
+                                'Không thể gọi số khi quầy đang phục vụ' : 
+                                (!canControlResult ? 'Số này đang được phục vụ ở quầy khác' : '');
+                              
+                              return (
+                                <div 
+                                  key={result.id || index}
+                                  className={`search-result-item ${isDisabled ? 'disabled' : ''}`}
+                                  onMouseDown={() => handleSearchResultClick(result)}
+                                  title={titleText}
+                                >
+                                  <span className="search-result-number">
+                                    {getDisplayNumber(result)}
+                                  </span>
+                                  <span className="search-result-nationality">{result.nationality}</span>
+                                  <span className="search-result-status">{
+                                    result.status === 'ready' ? 'Sẵn sàng' :
+                                    result.status === 'serving' ? (result.counter ? `Đang phục vụ ở quầy ${result.counter}` : 'Đang phục vụ') :
+                                    result.status === 'completed' ? 'Hoàn tất' :
+                                    result.status === 'cancel' ? 'Đã bỏ qua' : result.status
+                                  }</span>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -872,7 +897,11 @@ const ReceiveNumber = () => {
                       <div className="queue-item-content">
                         <div className="queue-number">
                           {getDisplayNumber(item)}
-                          {item.status === 'serving' && <span className="serving-indicator">đang phục vụ</span>}
+                          {item.status === 'serving' && (
+                            <div className="serving-indicator">
+                              {item.counter ? `đang phục vụ ở quầy ${item.counter}` : 'đang phục vụ'}
+                            </div>
+                          )}
                         </div>
                         <div className="queue-details">
                           <div className="queue-nationality">
@@ -938,8 +967,8 @@ const ReceiveNumber = () => {
         <div className="bottom-controls">
           <button 
             onClick={() => handleCallNumber()}
-            disabled={!currentNumber || isCalling || isSpeaking || actionLoading || !['ready', 'serving', 'cancel', 'completed'].includes(currentNumber?.status) || isCurrentCounterServing()}
-            className={`bottom-button ${isCalling || isSpeaking || !['ready', 'serving', 'cancel', 'completed'].includes(currentNumber?.status) || isCurrentCounterServing() ? 'btn-disabled' : 'btn-success'}`}
+            disabled={!isCallingAllowed()}
+            className={`bottom-button ${!isCallingAllowed() ? 'btn-disabled' : 'btn-success'}`}
           >
             {isCalling ? 'Đang gọi...' : 
              isSpeaking ? 'Đang phát âm thanh...' : 
