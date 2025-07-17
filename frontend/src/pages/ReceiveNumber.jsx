@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
@@ -11,6 +11,9 @@ import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 
 const ReceiveNumber = () => {
   useAuthGuard();
+  useEffect(() => {
+    document.title = "Quản lý tiếp nhận hồ sơ";
+  }, []);
   const navigate = useNavigate();
   const [currentNumber, setCurrentNumber] = useState(null);
   const [queueItems, setQueueItems] = useState([]);

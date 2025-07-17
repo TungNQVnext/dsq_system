@@ -230,14 +230,28 @@ const Menu = () => {
           <button onClick={() =>{
             window.open("/return-record-display","_blank");
           }} className="menu-button">
-            Màn hình thông báo trả kết quả
+            📺 Màn hình thông báo trả hồ sơ
           </button>
         )}
         {showForAdmin && (
           <button onClick={() =>{
             window.open("/receive-number-display","_blank");
           }} className="menu-button">
-            Màn hình thông báo nhận kết quả
+            📟 Màn hình thông báo nhận hồ sơ
+          </button>
+        )}
+        {(showForAdmin || showForStaff) && (
+          <button onClick={() =>{
+            window.open("_blank");
+          }} className="menu-button">
+            📋 Tạo hồ sơ
+          </button>
+        )}
+        {(showForAdmin) && (
+          <button onClick={() =>{
+            window.open("_blank");
+          }} className="menu-button">
+            📊 Thống kê
           </button>
         )}
         {showForAdmin && (

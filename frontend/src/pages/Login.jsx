@@ -17,6 +17,9 @@ const Login = () => {
         if (res.ok) navigate("/menu");
       });
   }, [navigate]);
+  useEffect(() => {
+    document.title = "Đăng nhập";
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
