@@ -24,3 +24,5 @@ If SECRET_KEY compromised:
 2. Update .env file
 3. Restart application
 4. All users must re-login
+
+for test
