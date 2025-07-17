@@ -5,6 +5,7 @@ import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import vnext_logo from "../assets/vnext_logo.png";
 
 const GetNumber = () => {
   useEffect(() => {
@@ -77,6 +78,14 @@ const GetNumber = () => {
         <button onClick={() => navigate("/get-number-option")} className="back-button">Quay lại</button>
       )}
     </div>
+    <div className="footer-logo">
+          <div className="footer-logo-text">
+            <span> Hệ thống được phát triển bởi</span>
+          </div>
+        
+          <img src={vnext_logo} alt="logo" />
+
+        </div>
     </>
   );
 };

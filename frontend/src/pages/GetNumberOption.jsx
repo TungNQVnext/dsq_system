@@ -2,15 +2,15 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
-import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
-
+import vnext_logo from "../assets/vnext_logo.png";
 const GetNumberOption = () => {
   useEffect(() => {
     document.title = "Lấy số thứ tự"; 
   }, []);
-  useAuthGuard();
+  // useAuthGuard();
 
   const navigate = useNavigate();
 
@@ -47,6 +47,14 @@ const GetNumberOption = () => {
         </button>
       </div>
     </div>
+    <div className="footer-logo">
+          <div className="footer-logo-text">
+            <span> Hệ thống được phát triển bởi</span>
+          </div>
+        
+          <img src={vnext_logo} alt="logo" />
+
+        </div>
     </>
   );
 };
