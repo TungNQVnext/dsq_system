@@ -59,8 +59,7 @@
 }
 
 /* Footer */
-.footer-logo {
-
+.footer-logo-get-number {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,14 +67,19 @@
   color: #1d4ed8;
 }
 
-.footer-logo img {
+.footer-logo-get-number img {
   width: 100px;
   object-fit: contain;
   height: 50px;
 }
 
-.footer-logo-text {
+.footer-logo-text-get-number {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  color: #1d4ed8 !important;
+}
+
+.footer-logo-text-get-number span {
+  color: #1d4ed8 !important;
 }

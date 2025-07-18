@@ -42,8 +42,6 @@ const Login = () => {
       localStorage.setItem('token', tokenData.access_token);
       localStorage.setItem('user', JSON.stringify(tokenData.user));
       
-      console.log('Login successful, token saved:', tokenData.access_token.substring(0, 20) + '...');
-      console.log('User data saved:', tokenData.user);
 
       // Also do cookie-based login for backward compatibility
       try {
@@ -54,7 +52,7 @@ const Login = () => {
           credentials: "include",
         });
       } catch (cookieErr) {
-        console.warn('Cookie login failed, but token login succeeded');
+        console.error("Cookie login failed:", cookieErr);
       }
 
       navigate("/menu");

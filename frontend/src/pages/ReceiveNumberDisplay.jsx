@@ -5,6 +5,7 @@ import { API_URL } from "../setting";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+import vnext_logo from "../assets/vnext_logo.png";
 
 export const ReceiveNumberDisplay = () => {
   useAuthGuard();
@@ -168,6 +169,14 @@ export const ReceiveNumberDisplay = () => {
             </span>
           )}
         </div>
+      </div>
+      <div className="footer-logo" style={{borderTop : "2px solid rgb(255, 255, 255 )"}}>
+                <div className="footer-logo-text">
+                  <span> Hệ thống được phát triển bởi</span>
+                </div>
+              
+                <img src={vnext_logo} alt="logo" />
+      
       </div>
     </div>
   );

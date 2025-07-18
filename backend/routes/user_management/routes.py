@@ -20,14 +20,11 @@ def get_current_user(
     
     # Try token auth first
     if credentials and credentials.credentials:
-        print(f"Getting current user with token: {credentials.credentials[:20]}...")
         username = verify_access_token(credentials.credentials)
-        print(f"Verified username: {username}")
         user = db.query(User).filter(User.username == username).first()
         if not user:
             print(f"User {username} not found in database")
             raise HTTPException(status_code=401, detail="User not found")
-        print(f"Found user: {user.username}, role: {user.role}")
         return user
     
     # Fallback to cookie auth
