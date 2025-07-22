@@ -17,7 +17,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -25,6 +25,7 @@ const UserManagement = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [userRole, setUserRole] = useState(null);
   const [roleLoading, setRoleLoading] = useState(true);
+  const [editUserTab, setEditUserTab] = useState('password'); // 'password' or 'role'
 
   // Check if current user is admin
   const checkUserRole = useCallback(async () => {
@@ -102,6 +103,10 @@ const UserManagement = () => {
 
   const [changePasswordForm, setChangePasswordForm] = useState({
     newPassword: ''
+  });
+
+  const [changeRoleForm, setChangeRoleForm] = useState({
+    role: 'staff'
   });
 
   // Fetch users from API
@@ -225,7 +230,59 @@ const UserManagement = () => {
     }
   };
 
-  // Change password
+  // Change role
+  const handleChangeRole = async (e) => {
+    e.preventDefault();
+    if (actionLoading) return;
+
+    // Validation
+    if (!changeRoleForm.role) {
+      setError('Vui lòng chọn vai trò');
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      
+      const token = localStorage.getItem('token');
+      let response;
+      
+      if (token) {
+        response = await fetch(`${API_URL}/admin/users/${selectedUser.username}/role`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ role: changeRoleForm.role })
+        });
+      } else {
+        response = await fetch(`${API_URL}/admin/users/${selectedUser.username}/role`, {
+          method: 'PUT',
+          credentials: "include",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ role: changeRoleForm.role })
+        });
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to change role');
+      }
+
+      await fetchUsers();
+      setShowEditUserModal(false);
+      setChangeRoleForm({ role: 'staff' });
+      setSelectedUser(null);
+      setError(null);
+    } catch (err) {
+      setError('Lỗi khi đổi vai trò: ' + err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (actionLoading) return;
@@ -264,10 +321,17 @@ const UserManagement = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to change password');
+        let errorMessage = errorData.detail || 'Failed to change password';
+        
+        // Customize error message for Vietnamese
+        if (errorMessage.includes('cannot be the same as current password')) {
+          errorMessage = 'Mật khẩu mới không được giống với mật khẩu hiện tại';
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      setShowChangePasswordModal(false);
+      setShowEditUserModal(false);
       setChangePasswordForm({ newPassword: '' });
       setSelectedUser(null);
       setError(null);
@@ -331,17 +395,21 @@ const UserManagement = () => {
 
   const closeModals = () => {
     setShowCreateModal(false);
-    setShowChangePasswordModal(false);
+    setShowEditUserModal(false);
     setShowDeleteModal(false);
     setSelectedUser(null);
     setChangePasswordForm({ newPassword: '' });
+    setChangeRoleForm({ role: 'staff' });
+    setEditUserTab('password');
     setError(null);
   };
 
-  const openChangePasswordModal = (user) => {
+  const openEditUserModal = (user) => {
     setSelectedUser(user);
     setChangePasswordForm({ newPassword: '' });
-    setShowChangePasswordModal(true);
+    setChangeRoleForm({ role: user.role });
+    setEditUserTab('password');
+    setShowEditUserModal(true);
     setError(null);
   };
 
@@ -466,10 +534,10 @@ const UserManagement = () => {
                           <div className="action-buttons">
                             <button 
                               className="btn-warning"
-                              onClick={() => openChangePasswordModal(user)}
+                              onClick={() => openEditUserModal(user)}
                               disabled={actionLoading}
                             >
-                              🔑 Đổi mật khẩu
+                              ✏️ Đổi thông tin người dùng
                             </button>
                             <button 
                               className="btn-danger"
@@ -557,31 +625,75 @@ const UserManagement = () => {
         </div>
       )}
 
-      {/* Change Password Modal */}
-      {userRole === 'admin' && showChangePasswordModal && (
+      {/* Edit User Modal */}
+      {userRole === 'admin' && showEditUserModal && (
         <div className="modal-overlay">
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Đổi mật khẩu cho {selectedUser?.username}</h2>
+              <h2>Đổi thông tin người dùng: {selectedUser?.username}</h2>
               <button className="close-button" onClick={closeModals}>×</button>
             </div>
-            <form onSubmit={handleChangePassword}>
-              <div className="form-group">
-                <label>Mật khẩu mới:</label>
-                <input
-                  type="password"
-                  value={changePasswordForm.newPassword}
-                  onChange={(e) => setChangePasswordForm({newPassword: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" onClick={closeModals}>Hủy</button>
-                <button type="submit" disabled={actionLoading}>
-                  {actionLoading ? 'Đang cập nhật...' : 'Cập nhật'}
-                </button>
-              </div>
-            </form>
+            
+            {/* Tab Navigation */}
+            <div className="tab-navigation">
+              <button 
+                className={`tab-button ${editUserTab === 'password' ? 'active' : ''}`}
+                onClick={() => setEditUserTab('password')}
+              >
+                🔑 Đổi mật khẩu
+              </button>
+              <button 
+                className={`tab-button ${editUserTab === 'role' ? 'active' : ''}`}
+                onClick={() => setEditUserTab('role')}
+              >
+                👤 Đổi vai trò
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            {editUserTab === 'password' && (
+              <form onSubmit={handleChangePassword}>
+                <div className="form-group">
+                  <label>Mật khẩu mới:</label>
+                  <input
+                    type="password"
+                    value={changePasswordForm.newPassword}
+                    onChange={(e) => setChangePasswordForm({newPassword: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="modal-actions">
+                  <button type="button" onClick={closeModals}>Hủy</button>
+                  <button type="submit" disabled={actionLoading}>
+                    {actionLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {editUserTab === 'role' && (
+              <form onSubmit={handleChangeRole}>
+                <div className="form-group">
+                  <label>Vai trò hiện tại: <strong>{selectedUser?.role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</strong></label>
+                </div>
+                <div className="form-group">
+                  <label>Vai trò mới:</label>
+                  <select
+                    value={changeRoleForm.role}
+                    onChange={(e) => setChangeRoleForm({role: e.target.value})}
+                  >
+                    <option value="staff">Nhân viên</option>
+                    <option value="admin">Quản trị viên</option>
+                  </select>
+                </div>
+                <div className="modal-actions">
+                  <button type="button" onClick={closeModals}>Hủy</button>
+                  <button type="submit" disabled={actionLoading}>
+                    {actionLoading ? 'Đang cập nhật...' : 'Cập nhật vai trò'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

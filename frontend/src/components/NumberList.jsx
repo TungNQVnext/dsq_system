@@ -78,7 +78,7 @@ export const NumberList = ({
             }
           }}
         />
-
+        <br />
         {/* Filter Buttons */}
         <div className="filter-buttons">
           <button

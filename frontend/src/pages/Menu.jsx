@@ -133,6 +133,10 @@ const Menu = () => {
       setPasswordError('Mật khẩu mới phải có ít nhất 4 ký tự');
       return;
     }
+    if (changePasswordForm.currentPassword === changePasswordForm.newPassword) {
+      setPasswordError('Mật khẩu mới không được giống với mật khẩu hiện tại');
+      return;
+    }
 
     try {
       setPasswordLoading(true);
@@ -169,7 +173,16 @@ const Menu = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Không thể đổi mật khẩu');
+        let errorMessage = errorData.detail || 'Không thể đổi mật khẩu';
+        
+        // Customize error message for Vietnamese
+        if (errorMessage.includes('cannot be the same as current password')) {
+          errorMessage = 'Mật khẩu mới không được giống với mật khẩu hiện tại';
+        } else if (errorMessage.includes('Current password is incorrect')) {
+          errorMessage = 'Mật khẩu hiện tại không đúng';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Show success message and redirect to login

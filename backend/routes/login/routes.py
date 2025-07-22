@@ -84,6 +84,10 @@ def change_password_cookie(
     if not verify_password(current_password, user.password_hash):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     
+    # Check if new password is the same as current password
+    if verify_password(new_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="New password cannot be the same as current password")
+    
     # Update password
     user.password_hash = hash_password(new_password)
     db.commit()
@@ -111,6 +115,10 @@ def change_password_token(
     # Verify current password
     if not verify_password(current_password, user.password_hash):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Check if new password is the same as current password
+    if verify_password(new_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="New password cannot be the same as current password")
     
     # Update password
     user.password_hash = hash_password(new_password)

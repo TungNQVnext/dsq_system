@@ -14,12 +14,12 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-very-strong-secret-key")
 
 # Kiểm tra và cảnh báo nếu đang sử dụng SECRET_KEY mặc định
 if SECRET_KEY == "your-very-strong-secret-key":
-    logging.warning("🔥 CẢNH BÁO BẢO MẬT: Đang sử dụng SECRET_KEY mặc định!")
+    logging.warning("CẢNH BÁO BẢO MẬT: Đang sử dụng SECRET_KEY mặc định!")
     logging.warning("Tạo SECRET_KEY mới: python -c \"import secrets; print(secrets.token_hex(32))\"")
 
 # Kiểm tra độ dài SECRET_KEY
 if len(SECRET_KEY) < 32:
-    logging.warning(f"🔥 CẢNH BÁO BẢO MẬT: SECRET_KEY quá ngắn ({len(SECRET_KEY)} ký tự). Khuyến nghị ít nhất 32 ký tự")
+    logging.warning(f"CẢNH BÁO BẢO MẬT: SECRET_KEY quá ngắn ({len(SECRET_KEY)} ký tự). Khuyến nghị ít nhất 32 ký tự")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60

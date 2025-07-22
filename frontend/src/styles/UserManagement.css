@@ -682,3 +682,40 @@
     min-width: 120px;
   }
 }
+
+/* Tab Navigation Styles */
+.tab-navigation {
+  display: flex;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d !important;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.tab-button:hover {
+  color: #007bff !important;
+  background-color: #f8f9fa;
+}
+
+.tab-button.active {
+  color: #007bff !important;
+  border-bottom-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.tab-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
