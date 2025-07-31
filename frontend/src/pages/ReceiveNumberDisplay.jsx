@@ -4,18 +4,27 @@ import logo from "../assets/Emblem_of_Vietnam.svg";
 import { API_URL } from "../setting";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
-import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import vnext_logo from "../assets/vnext_logo.png";
 
 export const ReceiveNumberDisplay = () => {
-  useAuthGuard();
+  // useAuthGuard();
   const [currentServing, setCurrentServing] = useState({
-    1: "",
+    1: { number: "A023" },
     2: "",
-    3: ""
+    3: { number: "C008" }
   });
 
-  const [cancelledNumbers, setCancelledNumbers] = useState([]);
+  const [cancelledNumbers, setCancelledNumbers] = useState([
+    { callNumber: "A019" },
+    { callNumber: "B012" },
+    { callNumber: "C013" },
+    { callNumber: "D014" },
+    { callNumber: "E015" },
+    { callNumber: "F016" },
+    { callNumber: "G017" },
+    { callNumber: "H-018" },
+  ]);
   const { subscribe } = useWebSocket();
   const { subscribe: subscribeReceive } = useReceiveWebSocket();
 
@@ -95,8 +104,11 @@ export const ReceiveNumberDisplay = () => {
     return servingData ? servingData.number : "";
   };
 
-  // Check if any counter is serving
-  const hasServingNumbers = Object.values(currentServing).some(s => s && s.number && s.number.trim() !== "");
+  // Check if counter is serving
+  const isCounterServing = (counterNumber) => {
+    const servingData = currentServing[counterNumber.toString()];
+    return servingData && servingData.number && servingData.number.trim() !== "";
+  };
 
   return (
     <div className="display-screen-container">
@@ -107,37 +119,53 @@ export const ReceiveNumberDisplay = () => {
 
       {/* Header */}
       <div className="display-header">
-        
-        <div className="display-header-section">
-          <div className="display-header-title">Quầy</div>
-          <div className="display-header-subtitle">カウンター</div>
-        </div>
-        <div className="display-header-section">
-          <div className="display-header-title">Đang phục vụ</div>
-          <div className="display-header-subtitle">受付中</div>
+        <div className="display-header-content">
+          <h1 className="display-main-title">Đại sứ quán Việt Nam tại Nhật Bản</h1>
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Main content - Counters */}
       <div className="display-main">
-     
-        {/* Serving numbers (right side) */}
-        <div className="display-serving">
+        <div className="display-counters-grid">
           {[1, 2, 3].map((counter) => {
             const servingNumber = getServingNumber(counter);
-            const displayNumber = hasServingNumbers ? (servingNumber || "準備中") : "準備中";
-            const counterNumber = counter;
+            const isServing = isCounterServing(counter);
             
             return (
-              <div 
-                key={counter} 
-                className="display-counter-item"
-              >
-                <div className="display-counter-number">
-                  {counterNumber}
+              <div key={counter} className="display-counter-card">
+                <div className="counter-header">
+                <h2 className="counter-title">
+                    Quầy {counter}
+                  </h2>
+
+                  <label className="counter-label">窓口{counter}</label>
+                  
                 </div>
-                <div className="display-serving-item">
-                  {displayNumber}
+                
+                <div className={`counter-status ${isServing ? 'serving' : 'waiting'}`}>
+                  <div className="status-icon">
+                    {isServing ? (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                      </svg>
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/>
+                        <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" fill="currentColor"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span className="status-text">
+                    {isServing ? '受付中' : '待機中'}
+                  </span>
+                </div>
+                
+                <div className="counter-number-section">
+                  {/* <div className="number-label">処理中の番号</div> */}
+                  
+                  <div className="serving-number">
+                    {servingNumber || '---'}
+                  </div>
                 </div>
               </div>
             );
@@ -145,38 +173,31 @@ export const ReceiveNumberDisplay = () => {
         </div>
       </div>
 
-      {/* Previously called section */}
-      <div className="display-previous">
-        <div className="display-previous-title">
-          <span>Số đã gọi qua </span>
-          <span>(呼び出し済み番号)</span>
+      {/* Absent Numbers Section */}
+      <div className="display-absent">
+        <div className="absent-header">
+          <h2 className="absent-title">Số khách vắng mặt</h2>
+          <label className="absent-label">ご不在者番号</label>
         </div>
-        {/* <div className="display-previous-subtitle">
-          (vui lòng liên hệ nhân viên nếu thấy số của bạn)
-        </div>
-        <div className="display-previous-subtitle-jp">
-          (お客様の番号が表示されている場合は、スタッフにお声がけください)
-        </div> */}
-        <div className="display-previous-numbers">
+        <div className="absent-numbers">
           {cancelledNumbers.length > 0 ? (
             cancelledNumbers.map((item, index) => (
-              <span key={index} className="display-previous-number">
+              <span key={index} className="absent-number">
                 {item.callNumber}
               </span>
             ))
           ) : (
-            <span className="display-no-cancelled">
-            </span>
+            <span className="no-absent-numbers"></span>
           )}
         </div>
       </div>
-      <div className="footer-logo" style={{borderTop : "2px solid rgb(255, 255, 255 )"}}>
-                <div className="footer-logo-text">
-                  <span> Hệ thống được phát triển bởi</span>
-                </div>
-              
-                <img src={vnext_logo} alt="logo" />
-      
+
+      {/* Footer */}
+      <div className="display-footer">
+        <div className="footer-content">
+          <img src={vnext_logo} alt="VNEXT JAPAN logo" className="footer-logo" />
+          <span className="footer-text">このシステムはVNEXTJAPAN株式会社が開発しました。</span>
+        </div>
       </div>
     </div>
   );
