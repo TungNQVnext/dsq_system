@@ -10,5 +10,6 @@ class CallNumber(Base):
     prefix = Column(String, index=True)
     status = Column(String, nullable=False, index=True)
     counter = Column(String, nullable=True, index=True)
+    service_type = Column(String, nullable=True, index=True)
     created_date = Column(DateTime, default=datetime.datetime.now, index=True)
     updated_date = Column(DateTime, default=datetime.datetime.now, index=True)

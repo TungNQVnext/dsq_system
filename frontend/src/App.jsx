@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Menu from "./pages/Menu";
 import GetNumber from "./pages/GetNumber";
 import GetNumberOption from "./pages/GetNumberOption";
+import GetNumberService from "./pages/GetNumberService";
 import CallSystem from "./pages/CallSystem"
 import ReceiveNumber from "./pages/ReceiveNumber";
 import UserManagement from "./pages/UserManagement";
@@ -18,6 +19,7 @@ function App(){
         <Route path="/" element={<Login />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/get-number-option" element={<GetNumberOption />} />
+        <Route path="/get-number-service" element={<GetNumberService />} />
         <Route path="/get-number" element={<GetNumber />} />
         <Route path="/return-record-control" element={<CallSystem />} />
         <Route path="/return-record-display" element={<ReturnNumberDisplay />} />

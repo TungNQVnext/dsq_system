@@ -6,6 +6,7 @@ import { LANGUAGES } from "../constants/constants";
 import { API_URL } from "../setting";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
+import { getServiceTypeName } from "../utils/serviceUtils";
 import "../styles/ReceiveNumber.css";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 
@@ -15,6 +16,7 @@ const ReceiveNumber = () => {
     document.title = "Quản lý tiếp nhận hồ sơ";
   }, []);
   const navigate = useNavigate();
+  
   const [currentNumber, setCurrentNumber] = useState(null);
   const [queueItems, setQueueItems] = useState([]);
   const [allItems, setAllItems] = useState([]); // Store all items for filtering
@@ -70,6 +72,7 @@ const ReceiveNumber = () => {
       number: item.number,
       prefix: item.prefix,
       nationality: item.nationality,
+      service_type: item.service_type,
       startTime: new Date(item.updated_date).toLocaleTimeString('vi-VN', { 
         hour: '2-digit', 
         minute: '2-digit' 
@@ -92,6 +95,42 @@ const ReceiveNumber = () => {
     
     // Otherwise, concatenate prefix + number
     return prefix + number;
+  };
+
+  // Helper function to get next callable number
+  const getNextCallableNumber = () => {
+    if (activeTab !== 'ready') return null;
+    
+    // Filter by today's date first
+    const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
+    
+    // Apply nationality filter
+    let filteredItems = todayItems;
+    if (selectedNationality !== "all") {
+      if (selectedNationality === "vietnam") {
+        filteredItems = filteredItems.filter(item => 
+          item.nationality && item.nationality.toLowerCase().includes("việt nam")
+        );
+      } else if (selectedNationality === "other") {
+        filteredItems = filteredItems.filter(item => 
+          !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
+        );
+      }
+    }
+    
+    // Check if current counter is serving any number
+    const currentCounterServingItem = filteredItems.find(item => 
+      item.status === 'serving' && item.counter === selectedDoor
+    );
+    
+    if (currentCounterServingItem) {
+      // If counter is serving, that's the current number (not next)
+      return null;
+    }
+    
+    // If counter is not serving, find next ready number
+    const readyItems = filteredItems.filter(item => item.status === 'ready');
+    return readyItems[0] || null;
   };
 
   // Helper function to check if date is today
@@ -887,30 +926,42 @@ const ReceiveNumber = () => {
                     <div className="empty-text">Không có số nào trong hàng đợi</div>
                   </div>
                 ) : (
-                  queueItems.map((item, index) => (
-                    <div 
-                      key={item.id || index} 
-                      className={`queue-item ${currentNumber && currentNumber.id === item.id ? 'selected' : ''} ${item.status === 'serving' ? 'serving' : ''}`}
-                      onClick={() => handleQueueItemClick(item)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div className="queue-item-content">
-                        <div className="queue-number">
-                          {getDisplayNumber(item)}
-                          {item.status === 'serving' && (
-                            <div className="serving-indicator">
-                              {item.counter ? `đang phục vụ ở quầy ${item.counter}` : 'đang phục vụ'}
+                  queueItems.map((item, index) => {
+                    const nextCallable = getNextCallableNumber();
+                    const isSelected = currentNumber && currentNumber.id === item.id;
+                    const isNextCallable = !isSelected && nextCallable && nextCallable.id === item.id;
+                    const isServing = item.status === 'serving';
+                    
+                    return (
+                      <div 
+                        key={item.id || index} 
+                        className={`queue-item ${isSelected ? 'selected' : ''} ${isServing ? 'serving' : ''} ${isNextCallable ? 'next-callable' : ''}`}
+                        onClick={() => handleQueueItemClick(item)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="queue-item-content">
+                          <div className="queue-number">
+                            {getDisplayNumber(item)}
+                            {item.status === 'serving' && (
+                              <div className="serving-indicator">
+                                {item.counter ? `đang phục vụ ở quầy ${item.counter}` : 'đang phục vụ'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="queue-details">
+                            <div className="queue-nationality">
+                              {item.nationality}
                             </div>
-                          )}
-                        </div>
-                        <div className="queue-details">
-                          <div className="queue-nationality">
-                            {item.nationality}
+                            {item.service_type && (
+                              <div className="queue-service">
+                                Dịch vụ: {getServiceTypeName(item.service_type)}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -924,8 +975,15 @@ const ReceiveNumber = () => {
               
               <div className="current-number-display">
                 {currentNumber ? (
-                  <div className="current-number">
-                    {getDisplayNumber(currentNumber)}
+                  <div className="current-number-info">
+                    <div className="current-number">
+                      {getDisplayNumber(currentNumber)}
+                    </div>
+                    {currentNumber.service_type && (
+                      <div className="current-service">
+                        Dịch vụ: {getServiceTypeName(currentNumber.service_type)}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="no-number">

@@ -4,7 +4,7 @@ import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
-import vnext_logo from "../assets/vnext_logo.png";
+import vnext_logo_orange from "../assets/vnext_logo_orange.png";
 
 const GetNumber = () => {
   useAuthGuard();
@@ -19,6 +19,7 @@ const GetNumber = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const prefix = location.state?.prefix;
+  const services = location.state?.services;
 
   useEffect(() => {
     if (!prefix) {
@@ -42,13 +43,18 @@ const GetNumber = () => {
     
     const startTime = Date.now();
     try {
+      const requestBody = { 
+        prefix,
+        services: services || []
+      };
+      
       const res = await fetch(`${API_URL}/call/number`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
           "X-Request-ID": requestId 
         },
-        body: JSON.stringify({ prefix })
+        body: JSON.stringify(requestBody)
       });
       
       const data = await res.json();
@@ -69,13 +75,17 @@ const GetNumber = () => {
     <>
     <Header />
     <div className="get-number-wrapper">
-      <h2 className="get-number-title">Số thứ tự của bạn là</h2>
-      {loading && <p className="number-loading">Đang xử lý...</p>}
+      <h2 className="get-number-title">
+        {prefix === "V" ? "Số thứ tự của bạn là" : "あなたの番号は"}
+      </h2>
+      {loading && <p className="number-loading">{prefix === "V" ? "Đang xử lý..." : "処理中..."}</p>}
       {currentNumber && (
         <h1 className="number-display">{currentNumber}</h1>
       )}
       {currentNumber && (
-        <button onClick={() => navigate("/get-number-option")} className="back-button">Hoàn thành</button>
+        <button onClick={() => navigate("/get-number-option")} className="complete-button-get-number">
+          {prefix === "V" ? "Hoàn thành" : "完了"}
+        </button>
       )}
     </div>
     <div className="footer-logo-get-number">
@@ -83,7 +93,7 @@ const GetNumber = () => {
             <span> Hệ thống được phát triển bởi</span>
           </div>
         
-          <img src={vnext_logo} alt="logo" />
+          <img src={vnext_logo_orange} alt="logo" />
 
         </div>
     </>

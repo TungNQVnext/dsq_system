@@ -4,7 +4,8 @@ import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
-import vnext_logo from "../assets/vnext_logo.png";
+import vnext_logo_orange from "../assets/vnext_logo_orange.png";
+
 const GetNumberOption = () => {
   useAuthGuard();
   useEffect(() => {
@@ -15,7 +16,11 @@ const GetNumberOption = () => {
   const navigate = useNavigate();
 
   const handleSelect = (prefix) => {
-    navigate("/get-number", { state: { prefix } });
+    if (prefix === "V") {
+      navigate("/get-number-service", { state: { prefix } });
+    } else {
+      navigate("/get-number", { state: { prefix } });
+    }
   };
 
   return (
@@ -26,24 +31,24 @@ const GetNumberOption = () => {
       <p className="get-number-subtitle">番号発券システム</p>
 
       <div className="get-number-options">
-        <p className="get-number-label">Chọn quốc tịch / 国籍を選択</p>
+        <p className="get-number-label">Chọn thủ tục / 手続きの選択</p>
 
         <button
           className="get-number-button"
           onClick={() => handleSelect("V")}
         >
-          🇻🇳 Công dân Việt Nam
+          Thủ tục dành cho người Việt Nam
           <br />
-          <span className="japanese-label">ベトナム国民</span>
+          <span className="japanese-label">ベトナム国籍者向けの手続き</span>
         </button>
 
         <button
           className="get-number-button"
           onClick={() => handleSelect("N")}
         >
-          🌐 Quốc tịch khác
+          日本人およびその他の国籍の方の手続き
           <br />
-          <span className="japanese-label">その他の国籍</span>
+          <span className="japanese-label">Queue Number for Japanese and Other Nationalities</span>
         </button>
       </div>
     </div>
@@ -51,8 +56,8 @@ const GetNumberOption = () => {
           <div className="footer-logo-text-get-number">
             <span> Hệ thống được phát triển bởi</span>
           </div>
-        
-          <img src={vnext_logo} alt="logo" />
+
+          <img sizes="(max-width: 25000px) 100vw, 600px" src={vnext_logo_orange} alt="logo" />
 
         </div>
     </>

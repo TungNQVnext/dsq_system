@@ -4,11 +4,11 @@ import logo from "../assets/Emblem_of_Vietnam.svg";
 import { API_URL } from "../setting";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
-// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import vnext_logo from "../assets/vnext_logo.png";
 
 export const ReceiveNumberDisplay = () => {
-  // useAuthGuard();
+  useAuthGuard();
   const [currentServing, setCurrentServing] = useState({
     1: { number: "A023" },
     2: "",
@@ -120,7 +120,7 @@ export const ReceiveNumberDisplay = () => {
       {/* Header */}
       <div className="display-header">
         <div className="display-header-content">
-          <h1 className="display-main-title">Đại sứ quán Việt Nam tại Nhật Bản</h1>
+          <h1 className="display-main-title">Đại Sứ Quán Nước Cộng Hòa Xã Hội Chủ Nghĩa Việt Nam Tại Nhật Bản</h1>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export const ReceiveNumberDisplay = () => {
                     )}
                   </div>
                   <span className="status-text">
-                    {isServing ? '受付中' : '待機中'}
+                    {isServing ? 'Đang phục vụ / 受付中' : 'Đang chờ / 待機中'}
                   </span>
                 </div>
                 
@@ -176,8 +176,7 @@ export const ReceiveNumberDisplay = () => {
       {/* Absent Numbers Section */}
       <div className="display-absent">
         <div className="absent-header">
-          <h2 className="absent-title">Số khách vắng mặt</h2>
-          <label className="absent-label">ご不在者番号</label>
+          <h2 className="absent-title">Số đã gọi qua / 呼び出し済み番号</h2>
         </div>
         <div className="absent-numbers">
           {cancelledNumbers.length > 0 ? (
@@ -196,7 +195,7 @@ export const ReceiveNumberDisplay = () => {
       <div className="display-footer">
         <div className="footer-content">
           <img src={vnext_logo} alt="VNEXT JAPAN logo" className="footer-logo" />
-          <span className="footer-text">このシステムはVNEXTJAPAN株式会社が開発しました。</span>
+          <span className="footer-text">Hệ Thống Được Phát Triển Bởi VNEXT JAPAN</span>
         </div>
       </div>
     </div>

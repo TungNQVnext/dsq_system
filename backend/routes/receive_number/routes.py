@@ -33,6 +33,7 @@ def get_call_numbers(db: Session = Depends(get_db)):
             "nationality": nationality,
             "status": call_number.status,
             "counter": call_number.counter,
+            "service_type": call_number.service_type,
             "created_date": call_number.created_date,
             "updated_date": call_number.updated_date
         })
@@ -69,6 +70,7 @@ def update_call_number_status(call_number_id: int, new_status: str, background_t
             "prefix": call_number.prefix,
             "nationality": "Việt Nam" if call_number.prefix == "V" else "Quốc tịch khác",
             "status": call_number.status,
+            "service_type": call_number.service_type,
             "created_date": call_number.created_date.isoformat() if call_number.created_date else None,
             "updated_date": call_number.updated_date.isoformat() if call_number.updated_date else None
         }
@@ -84,6 +86,7 @@ def update_call_number_status(call_number_id: int, new_status: str, background_t
         "prefix": call_number.prefix,
         "nationality": nationality,
         "status": call_number.status,
+        "service_type": call_number.service_type,
         "created_date": call_number.created_date,
         "updated_date": call_number.updated_date
     }
@@ -120,6 +123,7 @@ def get_current_serving_number(db: Session = Depends(get_db)):
             "prefix": current_number.prefix,
             "nationality": nationality,
             "status": current_number.status,
+            "service_type": current_number.service_type,
             "created_date": current_number.created_date,
             "updated_date": current_number.updated_date
         }
@@ -187,6 +191,7 @@ def call_number(request_data: dict, background_tasks: BackgroundTasks, db: Sessi
             "id": call_number.id,
             "number": call_number.number,
             "status": call_number.status,
+            "service_type": call_number.service_type,
             "counter": counter
         }
     })
@@ -197,6 +202,7 @@ def call_number(request_data: dict, background_tasks: BackgroundTasks, db: Sessi
             "id": call_number.id,
             "number": call_number.number,
             "status": call_number.status,
+            "service_type": call_number.service_type,
             "counter": counter
         }
     }
@@ -234,6 +240,7 @@ def get_serving_numbers(db: Session = Depends(get_db)):
                 "nationality": "Việt Nam" if call_number.prefix == "V" else "Quốc tịch khác",
                 "status": call_number.status,
                 "counter": counter,
+                "service_type": call_number.service_type,
                 "updated_date": call_number.updated_date.isoformat() if call_number.updated_date else None
             }
     
@@ -256,5 +263,6 @@ def get_counter_status(counter: str, db: Session = Depends(get_db)):
     return {
         "counter": counter,
         "is_serving": serving_call is not None,
-        "serving_number": serving_call.number if serving_call else None
+        "serving_number": serving_call.number if serving_call else None,
+        "service_type": serving_call.service_type if serving_call else None
     }

@@ -4,6 +4,7 @@ from db.database import get_db
 from models.call_number import CallNumber
 from pydantic import BaseModel
 from sqlalchemy import func
+from typing import List
 import datetime
 import threading
 import time
@@ -18,6 +19,7 @@ _request_lock = threading.Lock()
 
 class CallRequest(BaseModel):
     prefix: str
+    services: List[str] = []  # List of selected service IDs
 
 @router.post("/number")
 def generate_number(req: CallRequest, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
@@ -70,11 +72,15 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
             if existing_number:
                 raise HTTPException(status_code=409, detail=f"Số {new_number} đã tồn tại trong ngày hôm nay")
             
+            # Convert services list to comma-separated string for storage
+            service_type = ",".join(req.services) if req.services else None
+            
             new_call = CallNumber(
                 number=new_number,
                 prefix=prefix,
                 created_date=now,
-                status="ready"
+                status="ready",
+                service_type=service_type
             )
             
             db.add(new_call)
@@ -90,6 +96,7 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
                     "prefix": new_call.prefix,
                     "nationality": "Việt Nam" if new_call.prefix == "V" else "Quốc tịch khác",
                     "status": new_call.status,
+                    "service_type": new_call.service_type,
                     "created_date": new_call.created_date.isoformat() if new_call.created_date else None,
                     "updated_date": new_call.updated_date.isoformat() if new_call.updated_date else None
                 }
