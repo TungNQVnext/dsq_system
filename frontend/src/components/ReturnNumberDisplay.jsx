@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
-import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import "../styles/ReturnNumberDisplay.css";
 import logo from "../assets/Emblem_of_Vietnam.svg";
+import vnext_logo from "../assets/vnext_logo.png";
 
 const chunkArray = (array, size) => {
   const chunkedArr = [];
@@ -14,13 +15,16 @@ const chunkArray = (array, size) => {
 
 export const ReturnNumberDisplay = ({
   counterTitle = "QUẦY 3 - TRẢ KẾT QUẢ",
-  counterTitleJA = "カウンター3 - 結果返却窓口",
+  // counterTitleJA = "カウンター3 - 結果返却窓口",
 }) => {
-  useAuthGuard();
+  // useAuthGuard();
 
   const { subscribe } = useWebSocket();
+  
+ 
+
   const [pendingCalls, setPendingCalls] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  // const [currentTime, setCurrentTime] = useState(new Date());
   const [currentPage, setCurrentPage] = useState(0);
 
   const fetchInitialRecords = useCallback(async () => {
@@ -106,10 +110,10 @@ export const ReturnNumberDisplay = ({
     return () => unsubscribe();
   }, [subscribe, handleAllMessages]);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+    // useEffect(() => {
+    //   const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    //   return () => clearInterval(timer);
+    // }, []);
 
   useEffect(() => {
     if (extendedTotalPages > 1) {
@@ -128,34 +132,14 @@ export const ReturnNumberDisplay = ({
 
   return (
     <div className="tv-display-container">
-      <div className="tv-header" style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingTop: "20px",
-        paddingBottom: "20px",
-        backgroundColor: "white",
-        position: "relative",
-        minHeight: "100px"
-      }}>
-        <div style={{
-          position: "absolute",
-          left: 36,
-          top: 0,
-          bottom: 0,
-          display: "flex",
-          alignItems: "center",
-          paddingLeft: "20px"
-        }}>
-          <img src={logo} alt="Logo" style={{
-            height: "100%",
-            objectFit: "contain",
-            maxHeight: "120px"
-          }} />
+      <div className="tv-header">
+        <div className="header-logo">
+          <img src={logo} alt="Logo"
+          />
         </div>
         <div>
-          <h1 style={{ margin: 0, fontSize: "5rem", color: "black" }}>{counterTitle}</h1>
-          <h2 style={{ margin: 0, fontSize: "4.5rem", color: "black" }}>{counterTitleJA}</h2>
+          <h1 >{counterTitle}</h1>
+          {/* <h2>{counterTitleJA}</h2> */}
         </div>
       </div>
 
@@ -165,7 +149,7 @@ export const ReturnNumberDisplay = ({
         </div>
 
         {currentPageCalls.length === 0 ? (
-          <div className="tv-no-calls" style={{ padding: "60px 0", fontSize: "2.5rem", textAlign: "center", color: "#fff", fontStyle: "italic" }}>
+          <div className="tv-no-calls" style={{ padding: "60px 0", fontSize: "2.5rem", textAlign: "center", color: "black", fontStyle: "italic" }}>
             Không có số nào được gọi<br />(まだ呼び出しはありません)
           </div>
         ) : currentPage < totalPages ? (
@@ -181,39 +165,22 @@ export const ReturnNumberDisplay = ({
             ))}
           </div>
         ) : (
-          <div className="tv-called-autofit-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(8, minmax(160px, 1fr))",
-              gap: "35px",
-              padding: "20px 40px",
-              height: "100%",
-              overflow: "hidden",
-              alignItems: "center",
-              justifyItems: "center"
-            }}>
+          <div className="tv-called-autofit-grid" >
             {currentPageCalls.map((r) => (
               <div className="tv-called-item" key={r.profileCode}
-                style={{
-                  fontSize: "clamp(1.8rem, 4.5vw, 4rem)",
-                  height: "clamp(100px, 15vh, 140px)",
-                  width: "100%",
-                  maxWidth: "200px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  lineHeight: 1,
-                  textAlign: "center",
-                  letterSpacing: "0.05em",
-                }}>
+                >
                 {r.profileCode?.padStart(4, "0")}
               </div>
             ))}
           </div>
         )}
+      </div>
+      {/* Footer */}
+      <div className="display-footer">
+        <div className="footer-content">
+          <img src={vnext_logo} alt="VNEXT JAPAN logo" className="footer-logo" />
+          <span className="footer-text">Hệ thống được phát triển bởi VNEXT JAPAN</span>
+        </div>
       </div>
     </div>
   );
