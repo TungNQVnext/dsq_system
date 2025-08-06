@@ -3,9 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
-import { Header } from "../components/Header";
-import vnext_logo_orange from "../assets/vnext_logo_orange.png";
-
+import { HeaderDisplay } from "../components/HeaderDisplay";
+import { FooterDisplay } from "../components/FooterDisplay";
 const GetNumber = () => {
   useAuthGuard();
   useEffect(() => {
@@ -73,7 +72,7 @@ const GetNumber = () => {
 
   return (
     <>
-    <Header />
+    <HeaderDisplay />
     <div className="get-number-wrapper">
       <h2 className="get-number-title">
         {prefix === "V" ? "Số thứ tự của bạn là" : "あなたの番号は"}
@@ -88,14 +87,7 @@ const GetNumber = () => {
         </button>
       )}
     </div>
-    <div className="footer-logo-get-number">
-          <div className="footer-logo-text-get-number">
-            <span> Hệ thống được phát triển bởi</span>
-          </div>
-        
-          <img src={vnext_logo_orange} alt="logo" />
-
-        </div>
+    <FooterDisplay />
     </>
   );
 };

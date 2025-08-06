@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
-import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
-import { Header } from "../components/Header";
-import vnext_logo_orange from "../assets/vnext_logo_orange.png";
+// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+import { HeaderDisplay } from "../components/HeaderDisplay";
+import { FooterDisplay } from "../components/FooterDisplay";
 
 const GetNumberOption = () => {
-  useAuthGuard();
+  // useAuthGuard();
   useEffect(() => {
     document.title = "Lấy số thứ tự"; 
   }, []);
@@ -25,7 +25,7 @@ const GetNumberOption = () => {
 
   return (
     <>
-    <Header />
+    <HeaderDisplay />
     <div className="get-number-container">
       <h1 className="get-number-title">Hệ Thống Lấy Số</h1>
       <p className="get-number-subtitle">番号発券システム</p>
@@ -52,14 +52,7 @@ const GetNumberOption = () => {
         </button>
       </div>
     </div>
-    <div className="footer-logo-get-number">
-          <div className="footer-logo-text-get-number">
-            <span> Hệ thống được phát triển bởi</span>
-          </div>
-
-          <img sizes="(max-width: 25000px) 100vw, 600px" src={vnext_logo_orange} alt="logo" />
-
-        </div>
+    <FooterDisplay />
     </>
   );
 };

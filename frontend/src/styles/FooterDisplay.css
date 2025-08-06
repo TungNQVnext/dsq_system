@@ -1,0 +1,35 @@
+/* Footer */
+.display-footer {
+    background: #3b82f6;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+
+  .display-footer-container {
+   background: black;
+   height: 100px;
+  }
+  
+  .footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .footer-logo {
+    height: 100px;
+    width: auto;
+    object-fit: contain;
+  }
+  
+  .footer-text {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }

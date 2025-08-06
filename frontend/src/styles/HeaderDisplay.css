@@ -1,0 +1,48 @@
+/* Logo Overlay */
+.display-logo-overlay {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  
+  .display-logo-overlay img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+  }
+  
+  /* Header */
+  .display-header {
+    background: #3b82f6;
+    text-align: center;
+    height: 150px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .display-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .display-main-title {
+    font-size: 2.0rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    
+  }
+  
+  .display-subtitle {
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin: 0;
+    color: white;
+    opacity: 0.9;
+  }
