@@ -8,6 +8,7 @@ import { FooterDisplay } from "../components/FooterDisplay";
 
 const GetNumberOption = () => {
   // useAuthGuard();
+  // useAuthGuard();
   useEffect(() => {
     document.title = "Lấy số thứ tự"; 
   }, []);

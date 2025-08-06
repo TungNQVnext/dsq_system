@@ -8,6 +8,7 @@ import { FooterDisplay } from "../components/FooterDisplay";
 
 const GetNumberService = () => {
   // useAuthGuard();
+  // useAuthGuard();
   const navigate = useNavigate();
   const location = useLocation();
   const { prefix } = location.state || {};
