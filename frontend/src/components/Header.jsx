@@ -5,29 +5,19 @@ import logo from "../assets/Emblem_of_Vietnam.svg";
 
 export const Header = () => {
   return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-      className="header"
-    >
-      <img src={logo} alt="Logo" className="header-logo" />
-      <p style={{ fontSize: "1.6rem", color: "#1C6BC3", textAlign: "center" }}>
-        ĐẠI SỨ QUÁN NƯỚC CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM TẠI NHẬT BẢN
-      </p>
-
-      <div className="header-actions">
-        {/* <button className="header-button header-button-secondary">
-          <User className="header-button-icon" />
-          <span>Đăng Ký</span>
-        </button>
-        <button className="header-button header-button-primary">
-          <LogIn className="header-button-icon" />
-          <span>Đăng Nhập</span>
-        </button> */}
+    <>
+    {/* Logo Overlay */}
+    <div className="display-logo-overlay">
+        <img src={logo} alt="logo" />
       </div>
-    </header>
+
+      {/* Header */}
+      
+    <div className="display-header-container">
+        <div className="display-header-content">
+          <h1 className="display-main-title">Đại Sứ Quán Nước Cộng Hòa Xã Hội Chủ Nghĩa Việt Nam Tại Nhật Bản</h1>
+        </div>
+      </div>
+    </>
   );
 };

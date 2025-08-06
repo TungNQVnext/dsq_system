@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllServiceTypes } from "../utils/serviceUtils";
 import "../styles/GetNumberService.css";
-import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
-import vnext_logo_orange from "../assets/vnext_logo_orange.png";
+import { Footer } from "../components/Footer";
 
 const GetNumberService = () => {
-  useAuthGuard();
+  // useAuthGuard();
   const navigate = useNavigate();
   const location = useLocation();
   const { prefix } = location.state || {};
@@ -137,12 +137,7 @@ const GetNumberService = () => {
         </div>
       )}
 
-      <div className="footer-logo-get-number">
-        <div className="footer-logo-text-get-number">
-          <span>Hệ thống được phát triển bởi</span>
-        </div>
-        <img sizes="(max-width: 25000px) 100vw, 600px" src={vnext_logo_orange} alt="logo" />
-      </div>
+      <Footer />
     </>
   );
 };

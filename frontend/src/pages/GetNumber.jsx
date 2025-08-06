@@ -4,8 +4,7 @@ import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { Header } from "../components/Header";
-import vnext_logo_orange from "../assets/vnext_logo_orange.png";
-
+import { Footer } from "../components/Footer";
 const GetNumber = () => {
   useAuthGuard();
   useEffect(() => {
@@ -88,14 +87,7 @@ const GetNumber = () => {
         </button>
       )}
     </div>
-    <div className="footer-logo-get-number">
-          <div className="footer-logo-text-get-number">
-            <span> Hệ thống được phát triển bởi</span>
-          </div>
-        
-          <img src={vnext_logo_orange} alt="logo" />
-
-        </div>
+    <Footer />
     </>
   );
 };
