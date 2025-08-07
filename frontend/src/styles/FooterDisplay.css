@@ -1,6 +1,6 @@
 /* Footer */
 .display-footer {
-    background: #3b82f6;
+    background: #1962d6 !important;
     border-top: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
     margin-left: 20px;
@@ -15,7 +15,7 @@
   
   .footer-content {
     display: flex;
-    align-items: center;
+    align-items: center;  
     justify-content: center;
     gap: 15px;
     max-width: 1200px;

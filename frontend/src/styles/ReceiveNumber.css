@@ -468,29 +468,6 @@
   background-color: #DBEAFE;
 }
 
-.queue-item.next-callable {
-  background-color: #F0F9FF;
-  border-left: 4px solid #0EA5E9;
-  position: relative;
-}
-
-.queue-item.next-callable:hover {
-  background-color: #E0F2FE;
-}
-
-.queue-item.next-callable::before {
-  content: "Tiếp theo";
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  font-size: 0.625rem;
-  color: #0EA5E9;
-  background-color: #F0F9FF;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  border: 1px solid #0EA5E9;
-  font-weight: 500;
-}
 
 .queue-item.serving {
   background-color: #FEF3C7;

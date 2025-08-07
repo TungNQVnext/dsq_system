@@ -4,8 +4,13 @@ import { API_URL } from "../setting";
 import '../styles/Menu.css'; 
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 
 const Menu = () => {
+  useAuthGuard();
+  useEffect(() => {
+    document.title = "Menu";
+  }, []);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showMenu, setShowMenu] = useState(false);

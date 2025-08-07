@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllServiceTypes } from "../utils/serviceUtils";
 import "../styles/GetNumberService.css";
-// import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
+import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { HeaderDisplay } from "../components/HeaderDisplay";
 import { FooterDisplay } from "../components/FooterDisplay";
 
 const GetNumberService = () => {
-  // useAuthGuard();
-  // useAuthGuard();
+  useAuthGuard();
   const navigate = useNavigate();
   const location = useLocation();
   const { prefix } = location.state || {};
@@ -103,7 +102,7 @@ const GetNumberService = () => {
               onClick={handleComplete}
               disabled={selectedServices.length === 0}
             >
-              Hoàn Thành / 完了
+              Hoàn thành / 完了
             </button>
             
             <button

@@ -19,11 +19,11 @@ const ReceiveNumber = () => {
   
   const [currentNumber, setCurrentNumber] = useState(null);
   const [queueItems, setQueueItems] = useState([]);
-  const [allItems, setAllItems] = useState([]); // Store all items for filtering
+  const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false); // For button actions
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('ready'); // 'ready', 'cancel', 'completed'
+  const [activeTab, setActiveTab] = useState('ready');
   
   const [waitingCount, setWaitingCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
@@ -31,20 +31,19 @@ const ReceiveNumber = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("vietnamese+japanese");
   const [isCalling, setIsCalling] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isCounterServing, setIsCounterServing] = useState(false); // Track if current counter is serving
-  
-  // Initialize selectedDoor from localStorage or default to "1"
+  const [isCounterServing, setIsCounterServing] = useState(false);
+
   const [selectedDoor, setSelectedDoor] = useState(() => {
     return localStorage.getItem('selectedDoor') || "1";
   });
   
-  // Initialize selectedNationality based on localStorage or selectedDoor
+
   const [selectedNationality, setSelectedNationality] = useState(() => {
     const savedNationality = localStorage.getItem('selectedNationality');
     if (savedNationality) {
       return savedNationality;
     }
-    // Fallback to door-based default
+
     const savedDoor = localStorage.getItem('selectedDoor') || "1";
     if (savedDoor === "1" || savedDoor === "2") {
       return "vietnam";
@@ -54,17 +53,17 @@ const ReceiveNumber = () => {
     return "vietnam";
   });
 
-  // Search functionality states
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [searchInputFocused, setSearchInputFocused] = useState(false);
 
-  // WebSocket for real-time updates
+
   const { subscribe } = useWebSocket();
   const { subscribe: subscribeReceive, sendCallNotification } = useReceiveWebSocket();
 
-  // Helper function to create currentNumber object
+
   const createCurrentNumberObject = (item) => {
     if (!item) return null;
     return {
@@ -81,30 +80,30 @@ const ReceiveNumber = () => {
     };
   };
 
-  // Helper function to get display number (handle prefix duplication)
+
   const getDisplayNumber = (item) => {
     if (!item) return '';
     
     const prefix = item.prefix || '';
     const number = item.number || '';
     
-    // If number already starts with prefix, don't duplicate
+
     if (prefix && number.startsWith(prefix)) {
       return number;
     }
     
-    // Otherwise, concatenate prefix + number
+
     return prefix + number;
   };
 
-  // Helper function to get next callable number
+
   const getNextCallableNumber = () => {
     if (activeTab !== 'ready') return null;
     
-    // Filter by today's date first
+
     const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
     
-    // Apply nationality filter
+
     let filteredItems = todayItems;
     if (selectedNationality !== "all") {
       if (selectedNationality === "vietnam") {
@@ -118,30 +117,28 @@ const ReceiveNumber = () => {
       }
     }
     
-    // Check if current counter is serving any number
+
     const currentCounterServingItem = filteredItems.find(item => 
       item.status === 'serving' && item.counter === selectedDoor
     );
     
     if (currentCounterServingItem) {
-      // If counter is serving, that's the current number (not next)
       return null;
     }
     
-    // If counter is not serving, find next ready number
+
     const readyItems = filteredItems.filter(item => item.status === 'ready');
     return readyItems[0] || null;
   };
 
-  // Helper function to check if date is today
+
   const isToday = (dateString) => {
     const today = new Date();
     const itemDate = new Date(dateString);
     return today.toDateString() === itemDate.toDateString();
   };
 
-  // Fetch serving status for current counter
-  // Fetch counter status for current counter
+
   const fetchCounterStatus = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/receive_number/counter/${selectedDoor}/status`);
@@ -154,41 +151,33 @@ const ReceiveNumber = () => {
     }
   }, [selectedDoor]);
 
-  // Check if current counter is serving
+
   const isCurrentCounterServing = () => {
     return isCounterServing;
   };
 
-  // Check if calling is allowed for main call button (requires currentNumber)
+
   const isCallingAllowed = () => {
     if (!currentNumber) return false;
     
-    // Basic blocking conditions
+
     if (isCalling || isSpeaking || actionLoading) return false;
-    
-    // Must be a valid status
+
     if (!['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status)) return false;
-    
-    // Must be able to control this number
+
     if (!canControlCurrentNumber()) return false;
-    
-    // Special case: If this counter is serving AND the current number is the one being served by this counter
+
     if (isCurrentCounterServing() && currentNumber.status === 'serving') {
-      // Find the item in allItems to check if this counter is serving this specific number
       const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
       const servingItem = todayItems.find(item => item.id === currentNumber.id);
-      
-      // Only allow if this counter is serving this specific number
       return servingItem && servingItem.counter === selectedDoor;
     }
-    
-    // If counter is serving but current number is not the one being served, don't allow
+
     if (isCurrentCounterServing()) return false;
     
     return true;
   };
 
-  // Check if calling is allowed for search (doesn't require currentNumber, only checks counter status)
   const isSearchCallingAllowed = () => {
     return !isCalling && 
            !isSpeaking && 
@@ -196,26 +185,19 @@ const ReceiveNumber = () => {
            !isCurrentCounterServing();
   };
 
-  // Check if a specific number can be controlled by current counter
   const canControlSpecificNumber = (item) => {
     if (!item) return false;
-    
-    // If the number is serving, only the counter that is serving it can control it
+
     if (item.status === 'serving') {
       return item.counter === selectedDoor;
     }
-    
-    // For non-serving numbers, any counter can control
     return true;
   };
 
-  // Check if current counter can control the selected number (for skip/complete actions)
   const canControlCurrentNumber = () => {
     if (!currentNumber) return false;
-    
-    // If the number is serving, only the counter that is serving it can control it
+
     if (currentNumber.status === 'serving') {
-      // Find the item in allItems to get the counter information
       const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
       const servingItem = todayItems.find(item => item.id === currentNumber.id);
       
@@ -223,22 +205,16 @@ const ReceiveNumber = () => {
         return servingItem.counter === selectedDoor;
       }
     }
-    
-    // For non-serving numbers, any counter can control
     return true;
   };
 
-  // Calculate counts based on current filter
   const calculateCounts = (data = allItems) => {
-    // Note: API already filters by today's date, but keeping client-side filter for extra safety
     const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
     
-    // Filter and count by status
     const waitingItems = todayItems.filter(item => item.status === 'ready' || item.status === 'serving');
     const completedItems = todayItems.filter(item => item.status === 'completed');
     const skippedItems = todayItems.filter(item => item.status === 'cancel');
     
-    // Apply nationality filter for counts
     const getFilteredItems = (items) => {
       if (selectedNationality === "all") return items;
       if (selectedNationality === "vietnam") {
@@ -254,13 +230,11 @@ const ReceiveNumber = () => {
       return items;
     };
     
-    // Set counts with nationality filter applied
     setWaitingCount(getFilteredItems(waitingItems).length);
     setCompletedCount(getFilteredItems(skippedItems).length);
     setFinishedCount(getFilteredItems(completedItems).length);
   };
 
-  // Fetch call numbers from API
   const fetchCallNumbers = async () => {
     try {
       setLoading(true);
@@ -270,30 +244,22 @@ const ReceiveNumber = () => {
       }
       const data = await response.json();
       
-      // Store all data
       setAllItems(data);
       
-      // Calculate counts based on current filter
       calculateCounts(data);
       
-      // Update queue items based on active tab
       updateQueueItemsForTab(activeTab, data);
       
-      // Only set current number from serving/ready items if we're on ready tab
       if (activeTab === 'ready') {
-        // Note: API already filters by today's date, but keeping client-side filter for extra safety
         const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
         
-        // Check if current counter is serving any number
         const currentCounterServingItem = todayItems.find(item => 
           item.status === 'serving' && item.counter === selectedDoor
         );
         
         if (currentCounterServingItem) {
-          // If current counter is serving, show that number
           setCurrentNumber(createCurrentNumberObject(currentCounterServingItem));
         } else {
-          // If current counter is not serving, show next ready number
           const readyItems = todayItems.filter(item => item.status === 'ready');
           const nextReady = readyItems[0];
           if (nextReady) {
@@ -312,7 +278,6 @@ const ReceiveNumber = () => {
     }
   };
 
-  // Update call number status
   const updateCallNumberStatus = async (callNumberId, newStatus) => {
     try {
       if (!callNumberId) {
@@ -332,25 +297,21 @@ const ReceiveNumber = () => {
       }
       
       const result = await response.json();
-      
-      // Refresh data after update
+
       await fetchCallNumbers();
-      await fetchCounterStatus(); // Also refresh counter status
+      await fetchCounterStatus();
       
     } catch (err) {
       setError('Lỗi khi cập nhật trạng thái: ' + err.message);
     }
   };
 
-  // Update queue items based on active tab
   const updateQueueItemsForTab = (tab, data = allItems) => {
-    // Note: API already filters by today's date, but keeping client-side filter for extra safety
     const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
     
     let filteredItems = [];
     switch (tab) {
       case 'ready':
-        // Include ready and serving statuses only (truly callable numbers)
         filteredItems = todayItems.filter(item => item.status === 'ready' || item.status === 'serving');
         break;
       case 'cancel':
@@ -363,7 +324,6 @@ const ReceiveNumber = () => {
         filteredItems = todayItems.filter(item => item.status === 'ready');
     }
     
-    // Apply nationality filter
     if (selectedNationality !== "all") {
       if (selectedNationality === "vietnam") {
         filteredItems = filteredItems.filter(item => 
@@ -378,13 +338,10 @@ const ReceiveNumber = () => {
     
     setQueueItems(filteredItems);
     
-    // Update current number based on active tab
     if (tab === 'ready') {
-      // For ready tab, show serving item for selected counter or first ready item
       let servingItems = todayItems.filter(item => item.status === 'serving');
       let readyItems = todayItems.filter(item => item.status === 'ready');
       
-      // Apply nationality filter to both serving and ready items
       if (selectedNationality !== "all") {
         if (selectedNationality === "vietnam") {
           servingItems = servingItems.filter(item => 
@@ -403,17 +360,14 @@ const ReceiveNumber = () => {
         }
       }
       
-      // PRIORITY 1: Check if selected counter is serving any number
       const currentCounterServingItem = servingItems.find(item => 
         item.counter === selectedDoor
       );
       
       let currentItem;
       if (currentCounterServingItem) {
-        // ALWAYS show what this counter is serving (keep the current serving number)
         currentItem = currentCounterServingItem;
       } else {
-        // PRIORITY 2: Only show next ready item if counter is not serving anything
         currentItem = readyItems[0];
       }
       
@@ -423,7 +377,6 @@ const ReceiveNumber = () => {
         setCurrentNumber(null); 
       }
     } else {
-      // For cancel/completed tabs, show first item in the filtered list
       if (filteredItems.length > 0) {
         const firstItem = filteredItems[0];
         setCurrentNumber(createCurrentNumberObject(firstItem));
@@ -433,7 +386,6 @@ const ReceiveNumber = () => {
     }
   };
 
-  // Handle door change
   const handleDoorChange = (doorNumber) => {
     setSelectedDoor(doorNumber);
     
@@ -450,23 +402,18 @@ const ReceiveNumber = () => {
     
     setSelectedNationality(newNationality);
     localStorage.setItem('selectedNationality', newNationality);
-    
-    // Refresh data to update currentNumber for new counter
     fetchCallNumbers();
   };
 
-  // Handle tab click
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     updateQueueItemsForTab(tab);
   };
 
-  // Handle queue item click
   const handleQueueItemClick = (item) => {
     setCurrentNumber(createCurrentNumberObject(item));
   };
 
-  // Handle button actions
   const handleCallAgain = () => {
     if (currentNumber) {
       handleCallNumber(currentNumber.id);
@@ -503,11 +450,9 @@ const ReceiveNumber = () => {
       }
 
       const result = await response.json();
-      console.log("Call number result:", result);
-      
-      // Refresh data after calling
+
       await fetchCallNumbers();
-      await fetchCounterStatus(); // Also refresh counter status
+      await fetchCounterStatus();
       
     } catch (err) {
       setError('Lỗi khi gọi số: ' + err.message);
@@ -541,8 +486,7 @@ const ReceiveNumber = () => {
 
   const handleCallNext = async () => {
     if (actionLoading) return;
-    
-    // Filter by today's date first
+
     const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
     const readyItems = todayItems.filter(item => item.status === 'ready');
     const nextWaiting = readyItems[0]; 
@@ -556,7 +500,6 @@ const ReceiveNumber = () => {
     }
   };
 
-  // Get display title based on active tab
   const getDisplayTitle = () => {
     switch (activeTab) {
       case 'ready':
@@ -572,28 +515,26 @@ const ReceiveNumber = () => {
 
   useEffect(() => {
     fetchCallNumbers();
-    fetchCounterStatus(); // Fetch counter status on mount
+    fetchCounterStatus();
   }, []);
 
-  // Fetch counter status when selectedDoor changes
   useEffect(() => {
     fetchCounterStatus();
-    // Also refresh call numbers to update currentNumber for the new counter
+
     if (allItems.length > 0) {
-      // Use existing data to update currentNumber for new counter
+
       const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
       
       if (activeTab === 'ready') {
-        // PRIORITY 1: Check if new counter is serving any number
+
         const newCounterServingItem = todayItems.find(item => 
           item.status === 'serving' && item.counter === selectedDoor
         );
         
         if (newCounterServingItem) {
-          // ALWAYS show what this counter is serving (keep the current serving number)
+
           setCurrentNumber(createCurrentNumberObject(newCounterServingItem));
         } else {
-          // PRIORITY 2: Show next callable number if counter is not serving anything
           const callableItems = todayItems.filter(item => ['ready', 'serving', 'cancel', 'completed'].includes(item.status));
           const nextCallable = callableItems[0];
           if (nextCallable) {
@@ -607,14 +548,13 @@ const ReceiveNumber = () => {
   }, [selectedDoor, allItems, activeTab]);
 
   useEffect(() => {
-    // WebSocket real-time updates - remove dependency to prevent re-subscription
     if (!subscribe) return;
     
     const unsubscribe = subscribe("call_number_updated", (message) => {
       console.log("Real-time update received:", message);
-      // Auto-update when call numbers change
+
       fetchCallNumbers();
-      fetchCounterStatus(); // Also refresh counter status
+      fetchCounterStatus();
     });
 
     return () => {
@@ -623,7 +563,6 @@ const ReceiveNumber = () => {
   }, []); 
 
   useEffect(() => {
-    // Receive WebSocket for speaking status
     if (!subscribeReceive) return;
     
     const unsubscribe = subscribeReceive("all", (message) => {
@@ -631,13 +570,11 @@ const ReceiveNumber = () => {
         setIsSpeaking(true);
       } else if (message.type === "reading_end") {
         setIsSpeaking(false);
-        // Refresh data when speaking ends
         fetchCallNumbers();
-        fetchCounterStatus(); // Also refresh counter status
+        fetchCounterStatus();
       } else if (message.type === "call") {
-        // Refresh data when call is made
         fetchCallNumbers();
-        fetchCounterStatus(); // Also refresh counter status
+        fetchCounterStatus();
       }
     });
 
@@ -646,23 +583,18 @@ const ReceiveNumber = () => {
     };
   }, [subscribeReceive, fetchCallNumbers]);
 
-
-
-  // Update queue items when activeTab changes
   useEffect(() => {
     if (allItems.length > 0) {
       updateQueueItemsForTab(activeTab);
     }
   }, [activeTab, allItems, selectedNationality, selectedDoor]); 
 
-  // Update counts when nationality filter changes
   useEffect(() => {
     if (allItems.length > 0) {
       calculateCounts();
     }
   }, [selectedNationality]);
 
-  // Handle click outside to close search dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       const searchContainer = document.querySelector('.search-container');
@@ -680,7 +612,6 @@ const ReceiveNumber = () => {
     };
   }, [showSearchDropdown]);
 
-  // Handle search functionality
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -690,21 +621,17 @@ const ReceiveNumber = () => {
       setShowSearchDropdown(false);
       return;
     }
-    
-    // Search through all today's items
+
     const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
     const queryLower = query.trim().toLowerCase();
     
     const results = todayItems.filter(item => {
-      // Show all numbers (they can all be called)
       if (!['ready', 'serving', 'cancel', 'completed'].includes(item.status)) return false;
       
-      // Get the properly formatted display number
       const displayNumber = getDisplayNumber(item);
       const numberOnly = item.number ? item.number.toString() : '';
       const prefixOnly = item.prefix ? item.prefix.toString() : '';
       
-      // Search in display number, number only, or prefix only
       return displayNumber.toLowerCase().includes(queryLower) ||
              numberOnly.toLowerCase().includes(queryLower) ||
              prefixOnly.toLowerCase().includes(queryLower);
@@ -716,7 +643,6 @@ const ReceiveNumber = () => {
 
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchResults.length > 0) {
-      // Check both general calling permission and specific number control
       const firstResult = searchResults[0];
       if (isSearchCallingAllowed() && canControlSpecificNumber(firstResult)) {
         handleCallNumber(firstResult.id);
@@ -739,7 +665,6 @@ const ReceiveNumber = () => {
 
   const handleSearchBlur = () => {
     setSearchInputFocused(false);
-    // Delay hiding dropdown to allow clicking on results
     setTimeout(() => {
       if (!searchInputFocused) {
         setShowSearchDropdown(false);
@@ -748,15 +673,12 @@ const ReceiveNumber = () => {
   };
 
   const handleSearchResultClick = (result) => {
-    // Check both general calling permission and specific number control
     if (isSearchCallingAllowed() && canControlSpecificNumber(result)) {
       handleCallNumber(result.id);
     }
     setSearchQuery('');
     setShowSearchDropdown(false);
   };
-
- 
 
     return (
     <div className='receive-number-container'>
@@ -802,8 +724,8 @@ const ReceiveNumber = () => {
           </div>
         </div>
       </div>
-      
-      {/* Main Content - Takes remaining space */}
+
+      {/* Main Content */}
       <div className="main-content">
         {/* Content Area */}
         <div className="content-area">

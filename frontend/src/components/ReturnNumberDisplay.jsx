@@ -4,6 +4,7 @@ import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import "../styles/ReturnNumberDisplay.css";
 import logo from "../assets/Emblem_of_Vietnam.svg";
 import vnext_logo from "../assets/vnext_logo.png";
+import { FooterDisplay } from "./FooterDisplay";
 
 const chunkArray = (array, size) => {
   const chunkedArr = [];
@@ -176,12 +177,7 @@ export const ReturnNumberDisplay = ({
         )}
       </div>
       {/* Footer */}
-      <div className="display-footer">
-        <div className="footer-content">
-          <img src={vnext_logo} alt="VNEXT JAPAN logo" className="footer-logo" />
-          <span className="footer-text">Hệ thống được phát triển bởi VNEXT JAPAN</span>
-        </div>
-      </div>
+      <FooterDisplay />
     </div>
   );
 };

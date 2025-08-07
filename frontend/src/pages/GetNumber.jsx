@@ -73,7 +73,7 @@ const GetNumber = () => {
   return (
     <>
     <HeaderDisplay />
-    <div className="get-number-wrapper">
+    <div className="get-number-container">
       <h2 className="get-number-title">
         {prefix === "V" ? "Số thứ tự của bạn là" : "あなたの番号は"}
       </h2>

@@ -6,29 +6,19 @@ import { useWebSocket } from "../hooks/returnNumberHook/useWebSocket";
 import { useReceiveWebSocket } from "../hooks/receiveNumberHook/useReceiveWebSocket";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import vnext_logo from "../assets/vnext_logo.png";
+import { FooterDisplay } from "../components/FooterDisplay";
+import { HeaderDisplay } from "../components/HeaderDisplay";
 
 export const ReceiveNumberDisplay = () => {
   useAuthGuard();
   const [currentServing, setCurrentServing] = useState({
-    1: { number: "A023" },
-    2: "",
-    3: { number: "C008" }
   });
 
   const [cancelledNumbers, setCancelledNumbers] = useState([
-    { callNumber: "A019" },
-    { callNumber: "B012" },
-    { callNumber: "C013" },
-    { callNumber: "D014" },
-    { callNumber: "E015" },
-    { callNumber: "F016" },
-    { callNumber: "G017" },
-    { callNumber: "H-018" },
   ]);
   const { subscribe } = useWebSocket();
   const { subscribe: subscribeReceive } = useReceiveWebSocket();
 
-  // Fetch serving numbers from API
   const fetchServingNumbers = async () => {
     try {
       const response = await fetch(`${API_URL}/receive_number/serving`);
@@ -41,7 +31,6 @@ export const ReceiveNumberDisplay = () => {
     }
   };
 
-  // Fetch cancelled numbers from API
   const fetchCancelledNumbers = async () => {
     try {
       const response = await fetch(`${API_URL}/receive_number/call-numbers/cancelled-today`);
@@ -54,20 +43,15 @@ export const ReceiveNumberDisplay = () => {
     }
   };
 
-  // Initial fetch
   useEffect(() => {
     fetchServingNumbers();
     fetchCancelledNumbers();
   }, []);
-
-  // Subscribe to WebSocket updates for real-time updates
   useEffect(() => {
     if (!subscribe) return;
     
     const unsubscribe = subscribe("call_number_updated", (message) => {
       console.log("Display screen received update:", message);
-      // Refresh cancelled numbers when any number status changes
-      // This ensures we get updates when numbers are cancelled from control screen
       fetchCancelledNumbers();
       fetchServingNumbers();
     });
@@ -77,18 +61,15 @@ export const ReceiveNumberDisplay = () => {
     };
   }, [subscribe]);
 
-  // Subscribe to receive WebSocket for call updates
   useEffect(() => {
     if (!subscribeReceive) return;
     
     const unsubscribe = subscribeReceive("all", (message) => {
       console.log("Receive display screen received update:", message);
       if (message.type === "call" || message.type === "call_number_updated") {
-        // Refresh serving numbers when calls are made
         fetchServingNumbers();
       }
       if (message.type === "reading_end") {
-        // When speaking ends, update serving numbers
         fetchServingNumbers();
       }
     });
@@ -98,31 +79,19 @@ export const ReceiveNumberDisplay = () => {
     };
   }, [subscribeReceive]);
 
-  // Get serving number for specific counter
   const getServingNumber = (counterNumber) => {
     const servingData = currentServing[counterNumber.toString()];
     return servingData ? servingData.number : "";
   };
 
-  // Check if counter is serving
   const isCounterServing = (counterNumber) => {
     const servingData = currentServing[counterNumber.toString()];
     return servingData && servingData.number && servingData.number.trim() !== "";
   };
 
   return (
-    <div className="display-screen-container">
-      {/* Logo Overlay */}
-      <div className="display-logo-overlay">
-        <img src={logo} alt="logo" />
-      </div>
-
-      {/* Header */}
-      <div className="display-header">
-        <div className="display-header-content">
-          <h1 className="display-main-title">Đại Sứ Quán Nước Cộng Hòa Xã Hội Chủ Nghĩa Việt Nam Tại Nhật Bản</h1>
-        </div>
-      </div>
+    <>
+      <HeaderDisplay />
 
       {/* Main content - Counters */}
       <div className="display-main">
@@ -190,15 +159,8 @@ export const ReceiveNumberDisplay = () => {
           )}
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="display-footer">
-        <div className="footer-content">
-          <img src={vnext_logo} alt="VNEXT JAPAN logo" className="footer-logo" />
-          <span className="footer-text">Hệ Thống Được Phát Triển Bởi VNEXT JAPAN</span>
-        </div>
-      </div>
-    </div>
+      <FooterDisplay />
+    </>
   );
 };
 

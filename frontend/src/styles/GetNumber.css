@@ -1,14 +1,3 @@
-.get-number-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  font-family: "Inter", "Noto Sans", "Segoe UI", "Roboto", system-ui, sans-serif;
-  background-color: #f1f5f9;
-  text-align: center;
-  padding: 1rem;
-}
 
 .get-number-title {
   font-size: 1.5rem;
@@ -69,4 +58,14 @@
 
 .footer-logo-text span {
   color: #1d4ed8 !important;
+}
+.get-number-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f1f5f9; /* blue-50 */
+  text-align: center;
+  font-family: "Inter", "Noto Sans", "Segoe UI", "Roboto", system-ui, sans-serif;
 }
