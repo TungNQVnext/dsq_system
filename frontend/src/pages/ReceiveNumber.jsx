@@ -456,7 +456,6 @@ const ReceiveNumber = () => {
       
     } catch (err) {
       setError('Lỗi khi gọi số: ' + err.message);
-      console.error("Call number error:", err);
     } finally {
       setIsCalling(false);
     }
@@ -551,8 +550,6 @@ const ReceiveNumber = () => {
     if (!subscribe) return;
     
     const unsubscribe = subscribe("call_number_updated", (message) => {
-      console.log("Real-time update received:", message);
-
       fetchCallNumbers();
       fetchCounterStatus();
     });

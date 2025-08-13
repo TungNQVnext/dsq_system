@@ -1,8 +1,11 @@
 fastapi
 uvicorn
 python-multipart
-passlib
+passlib[bcrypt]
 pydantic
 sqlalchemy
 python-jose[cryptography]
 gTTS
+pygame
+python-dotenv
+websockets

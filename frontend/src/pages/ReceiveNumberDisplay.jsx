@@ -90,7 +90,7 @@ export const ReceiveNumberDisplay = () => {
   };
 
   return (
-    <>
+    <div className="display-screen-container">
       <HeaderDisplay />
 
       {/* Main content - Counters */}
@@ -160,7 +160,7 @@ export const ReceiveNumberDisplay = () => {
         </div>
       </div>
       <FooterDisplay />
-    </>
+    </div>
   );
 };
 

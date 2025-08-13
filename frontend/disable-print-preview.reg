@@ -1,0 +1,18 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]
+"PrintPreviewUseSystemDefaultPrinter"=dword:00000001
+"DisablePrintPreview"=dword:00000001
+"DefaultPrinterSelection"="kDefault"
+"PrintingEnabled"=dword:00000001
+"CloudPrintProxyEnabled"=dword:00000000
+"PrintHeaderFooter"=dword:00000000
+"PrintRasterize"=dword:00000001
+"UseSystemPrintDialog"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\Policies\Google\Chrome]
+"PrintPreviewUseSystemDefaultPrinter"=dword:00000001
+"DisablePrintPreview"=dword:00000001
+"DefaultPrinterSelection"="kDefault"
+"PrintingEnabled"=dword:00000001
+"UseSystemPrintDialog"=dword:00000000

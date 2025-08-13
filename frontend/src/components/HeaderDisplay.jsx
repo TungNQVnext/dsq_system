@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/Header.css";
+import "../styles/HeaderDisplay.css";
 import logo from "../assets/Emblem_of_Vietnam.svg";
 
 export const HeaderDisplay = () => {

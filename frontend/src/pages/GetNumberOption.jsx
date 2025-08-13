@@ -26,9 +26,6 @@ const GetNumberOption = () => {
     <>
     <HeaderDisplay />
     <div className="get-number-container">
-      <h1 className="get-number-title">Hệ Thống Lấy Số</h1>
-      <p className="get-number-subtitle">番号発券システム</p>
-
       <div className="get-number-options">
         <p className="get-number-label">Chọn thủ tục / 手続きの選択</p>
 

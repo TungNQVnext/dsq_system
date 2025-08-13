@@ -5,6 +5,8 @@ import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
 import { HeaderDisplay } from "../components/HeaderDisplay";
 import { FooterDisplay } from "../components/FooterDisplay";
+import { createTicketData } from "../utils/printUtils";
+import { printSilently } from "../utils/silentPrint";
 const GetNumber = () => {
   useAuthGuard();
   useEffect(() => {
@@ -59,6 +61,22 @@ const GetNumber = () => {
       const data = await res.json();
       const endTime = Date.now();
       setCurrentNumber(data.number);
+
+      // Tự động in phiếu số thứ tự - sử dụng silent print utility
+      console.log('Auto printing ticket for PRP 085 US thermal printer...');
+      
+      try {
+        const ticket = createTicketData(data.number, services, prefix);
+        console.log('Ticket data:', ticket);
+        
+        // Chỉ in 1 lần duy nhất với delay ngắn
+        setTimeout(() => {
+          printSilently(ticket);
+        }, 500);
+        
+      } catch (error) {
+        console.error('Print preparation error:', error);
+      }
 
       setTimeout(() => {
         navigate("/get-number-option");

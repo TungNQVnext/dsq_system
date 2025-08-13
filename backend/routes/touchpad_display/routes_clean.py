@@ -19,7 +19,7 @@ _request_lock = threading.Lock()
 
 class CallRequest(BaseModel):
     prefix: str
-    services: List[str] = []  # List of selected service IDs
+    services: List[str] = []
 
 @router.post("/number")
 def generate_number(req: CallRequest, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
@@ -34,7 +34,6 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
         
         _recent_requests[request_id] = current_time
         
-        # Cleanup old requests (older than 10 seconds)
         to_remove = [k for k, v in _recent_requests.items() if current_time - v > 10.0]
         for k in to_remove:
             del _recent_requests[k]
@@ -70,7 +69,7 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
             
             if existing_number:
                 raise HTTPException(status_code=409, detail=f"Số {new_number} đã tồn tại trong ngày hôm nay")
-
+            
             service_type = ",".join(req.services) if req.services else None
             
             new_call = CallNumber(
@@ -98,7 +97,7 @@ def generate_number(req: CallRequest, request: Request, background_tasks: Backgr
                     "updated_date": new_call.updated_date.isoformat() if new_call.updated_date else None
                 }
             }
-
+            
             background_tasks.add_task(manager.broadcast, json.dumps(new_call_message))
             
             return {"number": new_number}
@@ -113,7 +112,7 @@ def get_ticket_info(number: str, db: Session = Depends(get_db)):
     Lấy thông tin phiếu in cho một số thứ tự cụ thể
     """
     today = datetime.date.today()
-
+    
     call_number = db.query(CallNumber).filter(
         CallNumber.number == number.upper(),
         func.date(CallNumber.created_date) == today
@@ -121,7 +120,7 @@ def get_ticket_info(number: str, db: Session = Depends(get_db)):
     
     if not call_number:
         raise HTTPException(status_code=404, detail=f"Không tìm thấy số {number} trong ngày hôm nay")
-
+    
     service_map = {
         'visa': 'VISA',
         'passport': 'HỘ CHIẾU', 
@@ -142,7 +141,7 @@ def get_ticket_info(number: str, db: Session = Depends(get_db)):
         service_type = 'VISA'
     elif call_number.prefix == 'N':
         service_type = 'GENERAL SERVICE'
-
+    
     created_time = call_number.created_date
     day_names = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
     month_names = ['thg 1', 'thg 2', 'thg 3', 'thg 4', 'thg 5', 'thg 6',
@@ -167,3 +166,4 @@ def get_ticket_info(number: str, db: Session = Depends(get_db)):
         "created_date": call_number.created_date.isoformat(),
         "status": call_number.status
     }
+
