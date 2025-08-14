@@ -25,10 +25,22 @@ if exist "%~dp0backend\.env" (
 
 REM Get current machine IP
 echo Detecting current IP address...
-for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4 Address"') do (
+REM First try to get Ethernet adapter IP
+for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /A:"Ethernet adapter Ethernet" -A 10 ^| findstr /c:"IPv4 Address"') do (
     set "MACHINE_IP=%%a"
     set "MACHINE_IP=!MACHINE_IP: =!"
-    goto :ip_found
+    if not "!MACHINE_IP!"=="127.0.0.1" if not "!MACHINE_IP!"=="" (
+        goto :ip_found
+    )
+)
+REM Fallback to any non-loopback IPv4 address
+for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4 Address"') do (
+    set "TEMP_IP=%%a"
+    set "TEMP_IP=!TEMP_IP: =!"
+    if not "!TEMP_IP!"=="127.0.0.1" if not "!TEMP_IP!"=="" if not "!TEMP_IP:~0,11!"=="192.168.137" (
+        set "MACHINE_IP=!TEMP_IP!"
+        goto :ip_found
+    )
 )
 :ip_found
 if defined MACHINE_IP (

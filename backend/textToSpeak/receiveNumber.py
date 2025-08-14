@@ -5,13 +5,24 @@ import queue
 import re
 import time
 import tempfile
-import pygame
+try:
+    import pygame
+    PYGAME_AVAILABLE = True
+except ImportError:
+    PYGAME_AVAILABLE = False
+    print("Warning: pygame not available, audio features disabled")
 from gtts import gTTS
 import asyncio
 import datetime
 from websocket_backend.receive_number.call_number_utils import handle_reading_end
 
-pygame.mixer.init()
+try:
+    if PYGAME_AVAILABLE:
+        pygame.mixer.init()
+except (pygame.error, NameError) as e:
+    print(f"Warning: pygame mixer init failed: {e}")
+    PYGAME_AVAILABLE = False
+    # Continue without audio support
 
 appQueue = queue.Queue()
 status_callback = None

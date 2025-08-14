@@ -25,29 +25,45 @@ backend_env_path = Path(__file__).resolve().parent.parent / "backend" / ".env"
 frontend_env_path = Path(__file__).resolve().parent.parent / "frontend" / ".env"
 
 def get_local_ip():
-    hostname = socket.gethostname()
     try:
-        ip = socket.gethostbyname(hostname)
-        if ip.startswith("127."):
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("192.168.1.1"),1)
-            ip = s.getsockname()[0]
-            s.close()
+        # Try to connect to external address to get the correct local IP
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Google DNS
+        ip = s.getsockname()[0]
+        s.close()
         return ip
     except Exception:
+        try:
+            # Fallback to hostname method
+            hostname = socket.gethostname()
+            ip = socket.gethostbyname(hostname)
+            if not ip.startswith("127."):
+                return ip
+        except Exception:
+            pass
         return "127.0.0.1"
 
 def update_env_file(ip,env_path):
     lines = []
     updated = False
     if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("VITE_API_URL=http://"):
-                    lines.append(f"VITE_API_URL=http://{ip}:8000\n")
-                    updated = True
-                else:
-                    lines.append(line)
+        try:
+            # Try different encodings to handle BOM and other issues
+            for encoding in ['utf-8-sig', 'utf-8', 'cp1252', 'latin1']:
+                try:
+                    with open(env_path, "r", encoding=encoding) as f:
+                        for line in f:
+                            if line.startswith("VITE_API_URL=http://"):
+                                lines.append(f"VITE_API_URL=http://{ip}:8000\n")
+                                updated = True
+                            else:
+                                lines.append(line)
+                    break
+                except UnicodeDecodeError:
+                    continue
+        except Exception as e:
+            print(f"Warning: Could not read {env_path}: {e}")
+            lines = []
     if not updated:
         lines.append(f"VITE_API_URL=http://{ip}:8000\n")
     with open(env_path, "w", encoding="utf-8") as f:
@@ -70,7 +86,10 @@ app = FastAPI()
 
 allow_origins = [
     frontend_origin,
-    "http://localhost:5173"
+    "http://localhost:5173",
+    f"http://{current_ip}:5173",
+    "http://192.168.137.1:5173",
+    "http://192.168.1.107:5173"
 ]
 app.add_middleware(
     CORSMiddleware,
