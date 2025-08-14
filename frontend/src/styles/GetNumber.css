@@ -6,8 +6,31 @@
   justify-content: center;
   height: 100vh;
   background-color: #f1f5f9; /* blue-50 */
+  background-image: url('../assets/touch_monitor_background.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   text-align: center;
   font-family: "Inter", "Noto Sans", "Segoe UI", "Roboto", system-ui, sans-serif;
+  position: relative;
+}
+
+/* Overlay để làm background nhạt hơn */
+.get-number-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(241, 245, 249, 0.5); /* Giảm độ trong suốt từ 0.8 xuống 0.5 để background đậm hơn */
+  z-index: 1;
+}
+
+/* Đảm bảo nội dung hiển thị trên overlay */
+.get-number-container > * {
+  position: relative;
+  z-index: 2;
 }
 
 .get-number-title {

@@ -19,11 +19,12 @@ if len(SECRET_KEY) < 32:
     logging.warning(f"CẢNH BÁO BẢO MẬT: SECRET_KEY quá ngắn ({len(SECRET_KEY)} ký tự). Khuyến nghị ít nhất 32 ký tự")
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+# ACCESS_TOKEN_EXPIRE_MINUTES = 60  # Not used - using permanent tokens instead
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    expire = datetime.now() + (expires_delta or timedelta(hours=10))
+    # Set expiration to a very long time (100 years) for permanent login
+    expire = datetime.now() + timedelta(days=36500)  # ~100 years
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

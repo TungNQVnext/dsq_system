@@ -1,9 +1,13 @@
 // Utility functions for print ticket
 
-// Service mapping configuration
+// Service mapping configuration - cập nhật theo serviceUtils.js
 const SERVICE_MAP = {
   'visa': 'VISA',
-  'passport': 'HỘ CHIẾU',
+  'passport': 'Hộ chiếu',
+  'birth': 'Khai sinh',
+  'marriage': 'Kết hôn', 
+  'license': 'Bằng lái xe',
+  'others': 'Các thủ tục khác',
   'authentication': 'CHỨNG THỰC', 
   'notarization': 'CÔNG CHỨNG',
   'civil_status': 'TÌNH TRẠNG DÂN SỰ',
@@ -39,7 +43,7 @@ export const createTicketData = (number, services = [], prefix = '') => {
   });
   
   const formattedDate = `${dayOfWeek}, ${day} ${month}, ${year}`;
-  const timestamp = `VNC -- ${time}`;
+  const timestamp = `${time}`;
   
   // Xác định loại dịch vụ dựa trên services array hoặc prefix
   let serviceType = 'VISA'; // Mặc định
@@ -48,7 +52,13 @@ export const createTicketData = (number, services = [], prefix = '') => {
     if (services.length === 1) {
       serviceType = SERVICE_MAP[services[0]] || 'VISA';
     } else {
-      serviceType = 'NHIỀU DỊCH VỤ';
+      // Việt Nam: Hiển thị tất cả dịch vụ đã chọn
+      if (prefix === 'V') {
+        const serviceNames = services.map(service => SERVICE_MAP[service] || service).filter(Boolean);
+        serviceType = serviceNames.join(', ');
+      } else {
+        serviceType = 'NHIỀU DỊCH VỤ';
+      }
     }
   } else if (prefix === 'V') {
     serviceType = 'VISA';

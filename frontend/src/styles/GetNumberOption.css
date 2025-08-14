@@ -5,8 +5,31 @@
   justify-content: center;
   height: 100vh;
   background-color: #f1f5f9; /* blue-50 */
+  background-image: url('../assets/touch_monitor_background.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   text-align: center;
   font-family: "Inter", "Noto Sans", "Segoe UI", "Roboto", system-ui, sans-serif;
+  position: relative;
+}
+
+/* Overlay để làm background nhạt hơn */
+.get-number-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(241, 245, 249, 0.5); /* Giảm độ trong suốt từ 0.8 xuống 0.5 để background đậm hơn */
+  z-index: 1;
+}
+
+/* Đảm bảo nội dung hiển thị trên overlay */
+.get-number-container > * {
+  position: relative;
+  z-index: 2;
 }
 
 .get-number-title {
@@ -24,29 +47,37 @@
 
 .get-number-options {
   background-color: white;
-  padding: 2rem;
+  padding: 3rem 2.5rem 2rem 2.5rem; /* Giảm padding-bottom từ 3rem xuống 2rem */
   border-radius: 1rem;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   width: 100%;
-  max-width: 400px;
+  max-width: 600px; /* Tăng từ 400px lên 600px cho màn 15 inch */
+  /* Bỏ min-height để tự động fit content */
 }
 
 .get-number-label {
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem; /* Tăng từ 1.5rem lên 2rem */
   color: #0f172a;
+  font-size: 1.1rem; /* Tăng font size */
 }
 
 .get-number-button {
   width: 100%;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 1.5rem 1rem; /* Tăng padding dọc từ 1rem lên 1.5rem */
+  margin-bottom: 1.5rem; /* Tăng từ 1rem lên 1.5rem */
   border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem; /* Tăng border radius */
   background-color: lightblue;
-  font-size: 1rem;
+  font-size: 1.1rem; /* Tăng từ 1rem lên 1.1rem */
+  line-height: 1.4; /* Thêm line-height để text đẹp hơn */
   cursor: pointer;
   transition: background-color 0.2s;
+  min-height: 80px; /* Thêm min-height để button không quá thấp */
+}
+
+.get-number-button:last-child {
+  margin-bottom: 0; /* Bỏ margin-bottom của button cuối để không có khoảng trống */
 }
 
 .get-number-button:hover {
@@ -54,8 +85,10 @@
 }
 
 .japanese-label {
-  font-size: 0.85rem;
+  font-size: 0.95rem; /* Tăng từ 0.85rem lên 0.95rem */
   color: #64748b;
+  margin-top: 0.25rem; /* Thêm khoảng cách với text tiếng Việt */
+  display: block; /* Đảm bảo xuống hàng đẹp */
 }
 
 /* Footer */

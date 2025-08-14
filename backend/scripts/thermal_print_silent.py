@@ -1,8 +1,14 @@
 import win32print
 import win32api
+import win32con
+import win32gui
+import win32process
 import sys
 import socket
 import time
+import tempfile
+import os
+import subprocess
 
 def list_all_printers():
     """Liệt kê tất cả máy in có sẵn"""
@@ -43,56 +49,11 @@ def find_target_printer(printers):
     
     return None
 
-def print_to_thermal(content, printer_name=None):
-    """
-    In trực tiếp đến máy in thermal hoặc office printer
-    Hỗ trợ PRP-085 USB và TASKalfa WiFi
-    """
+def print_via_silent_notepad(content, printer_name):
+    """In hoàn toàn im lặng bằng notepad với /p parameter"""
     try:
-        # Lấy danh sách máy in
-        printers = list_all_printers()
-        
-        if printer_name is None:
-            # Tìm máy in target theo thứ tự ưu tiên
-            target_printer = find_target_printer(printers)
-            
-            if target_printer is None:
-                # Sử dụng default printer
-                try:
-                    target_printer = win32print.GetDefaultPrinter()
-                except:
-                    # Nếu không có default, dùng printer đầu tiên
-                    if printers:
-                        target_printer = printers[0]
-                    else:
-                        print("No printers found!")
-                        return False
-            
-            printer_name = target_printer
-        
-        # Kiểm tra nếu là máy in TASKalfa -> dùng ShellExecute
-        if "taskalfa" in printer_name.lower() or "task" in printer_name.lower():
-            return print_via_shellexecute(content, printer_name)
-        else:
-            return print_via_raw_data(content, printer_name)
-        
-    except Exception as e:
-        print(f"Print error: {e}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
-        return False
-
-def print_via_shellexecute(content, printer_name):
-    """In qua ShellExecute cho máy in office như TASKalfa"""
-    try:
-        import win32api
-        import tempfile
-        import os
-        
-        print(f"Using ShellExecute method for office printer: {printer_name}")
-        
-        # Tạo temp file
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as temp_file:
+        # Tạo temp file với extension .txt và UTF-8-BOM để hỗ trợ tiếng Nhật
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8-sig') as temp_file:
             temp_file.write(content)
             temp_file_path = temp_file.name
         
@@ -100,29 +61,42 @@ def print_via_shellexecute(content, printer_name):
         current_default = win32print.GetDefaultPrinter()
         win32print.SetDefaultPrinter(printer_name)
         
-        # Print using ShellExecute
-        result = win32api.ShellExecute(
-            0,                    # Parent window handle
-            "print",              # Verb
-            temp_file_path,       # File to print
-            None,                 # Parameters
-            None,                 # Directory
-            0                     # Show command (hidden)
+        # In bằng notepad với /p (print và đóng ngay)
+        # Sử dụng subprocess với STARTUPINFO để ẩn cửa sổ
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = win32con.SW_HIDE
+        
+        notepad_cmd = ['notepad.exe', '/p', temp_file_path]
+        
+        process = subprocess.Popen(
+            notepad_cmd,
+            startupinfo=startupinfo,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
+        
+        # Chờ notepad hoàn thành việc in
+        process.wait(timeout=15)  # Tăng timeout cho in tiếng Nhật
+        
+        # Wait thêm cho print spooler
+        time.sleep(3)  # Tăng thời gian chờ cho in tiếng Nhật
         
         # Restore default printer
         win32print.SetDefaultPrinter(current_default)
         
         # Cleanup
         try:
+            time.sleep(1)
             os.unlink(temp_file_path)
-        except:
+        except Exception as cleanup_error:
             pass
         
         return True
         
     except Exception as e:
-        print(f"ShellExecute print error: {e}")
+        print(f"Silent notepad print error: {e}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return False
 
 def print_via_raw_data(content, printer_name):
@@ -168,37 +142,43 @@ def print_via_raw_data(content, printer_name):
         return True
         
     except Exception as e:
+        print(f"Raw data print error: {e}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return False
+
+def print_to_thermal(content, printer_name=None):
+    """
+    In trực tiếp đến máy in thermal hoặc office printer
+    Hỗ trợ PRP-085 USB và TASKalfa WiFi (SILENT MODE)
+    """
+    try:
+        # Lấy danh sách máy in
+        printers = list_all_printers()
         
-        try:
-            # Tạo job in với tên job cụ thể
-            job_info = ("VNC Ticket Print", None, "RAW")
-            hJob = win32print.StartDocPrinter(hPrinter, 1, job_info)
+        if printer_name is None:
+            # Tìm máy in target theo thứ tự ưu tiên
+            target_printer = find_target_printer(printers)
             
-            if hJob == 0:
-                raise Exception("Failed to start print job")
-                
-            win32print.StartPagePrinter(hPrinter)
+            if target_printer is None:
+                # Sử dụng default printer
+                try:
+                    target_printer = win32print.GetDefaultPrinter()
+                except:
+                    # Nếu không có default, dùng printer đầu tiên
+                    if printers:
+                        target_printer = printers[0]
+                    else:
+                        print("No printers found!")
+                        return False
             
-            # Gửi dữ liệu với encoding phù hợp
-            if isinstance(content, str):
-                data = content.encode('utf-8', errors='replace')
-            else:
-                data = content
-                
-            bytes_written = win32print.WritePrinter(hPrinter, data)
-            print(f"Bytes written: {bytes_written}")
-            
-            # Kết thúc job
-            win32print.EndPagePrinter(hPrinter)
-            win32print.EndDocPrinter(hPrinter)
-            
-        finally:
-            # Đảm bảo đóng printer handle
-            win32print.ClosePrinter(hPrinter)
+            printer_name = target_printer
         
-        print("Print successful")
-        return True
+        # Kiểm tra nếu là máy in TASKalfa -> dùng silent notepad
+        if "taskalfa" in printer_name.lower() or "task" in printer_name.lower():
+            return print_via_silent_notepad(content, printer_name)
+        else:
+            return print_via_raw_data(content, printer_name)
         
     except Exception as e:
         print(f"Print error: {e}")
@@ -208,12 +188,26 @@ def print_via_raw_data(content, printer_name):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python thermal_print.py <content> or python thermal_print.py @<file_path>")
+        print("Usage: python thermal_print_silent.py <content> or python thermal_print_silent.py @<file_path> or python thermal_print_silent.py --check")
         # Chỉ list printers nếu không có content
         list_all_printers()
         sys.exit(1)
     
     content_arg = sys.argv[1]
+    
+    # Kiểm tra nếu argument là --check thì chỉ kiểm tra máy in
+    if content_arg == "--check":
+        printers = list_all_printers()
+        target_printer = find_target_printer(printers)
+        
+        if target_printer:
+            print(f"Printer found: {target_printer}")
+            print(f"Available printers: {', '.join(printers)}")
+            sys.exit(0)
+        else:
+            print("No target printer found")
+            print(f"Available printers: {', '.join(printers)}")
+            sys.exit(1)
     
     # Kiểm tra nếu argument bắt đầu với @ thì đọc từ file
     if content_arg.startswith('@'):
@@ -231,7 +225,7 @@ if __name__ == "__main__":
     success = print_to_thermal(content)
     
     if success:
-        print("Print completed successfully")
+        print("Print completed successfully (SILENT MODE)")
         sys.exit(0)
     else:
         print("Print failed")

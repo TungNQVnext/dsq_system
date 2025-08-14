@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../styles/GetNumberOption.css";
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
-import { HeaderDisplay } from "../components/HeaderDisplay";
-import { FooterDisplay } from "../components/FooterDisplay";
+import { HeaderTouch } from "../components/HeaderTouch";
+import { FooterTouch } from "../components/FooterTouch";
 
 const GetNumberOption = () => {
   useAuthGuard();
@@ -24,7 +24,7 @@ const GetNumberOption = () => {
 
   return (
     <>
-    <HeaderDisplay />
+    <HeaderTouch />
     <div className="get-number-container">
       <div className="get-number-options">
         <p className="get-number-label">Chọn thủ tục / 手続きの選択</p>
@@ -48,7 +48,7 @@ const GetNumberOption = () => {
         </button>
       </div>
     </div>
-    <FooterDisplay />
+    <FooterTouch />
     </>
   );
 };

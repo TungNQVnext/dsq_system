@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getAllServiceTypes } from "../utils/serviceUtils";
 import "../styles/GetNumberService.css";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
-import { HeaderDisplay } from "../components/HeaderDisplay";
-import { FooterDisplay } from "../components/FooterDisplay";
+import { HeaderTouch } from "../components/HeaderTouch";
+import { FooterTouch } from "../components/FooterTouch";
 
 const GetNumberService = () => {
   useAuthGuard();
@@ -71,7 +71,7 @@ const GetNumberService = () => {
 
   return (
     <>
-      <HeaderDisplay />
+      <HeaderTouch />
       <div className="get-number-service-container">
         <h1 className="get-number-service-title">Chọn Loại Dịch Vụ</h1>
         <p className="get-number-service-subtitle">サービスタイプの選択</p>
@@ -137,7 +137,7 @@ const GetNumberService = () => {
         </div>
       )}
 
-      <FooterDisplay />
+      <FooterTouch />
     </>
   );
 };

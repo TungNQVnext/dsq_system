@@ -26,7 +26,15 @@ def login(login_data: LoginInput, response: Response, db: Session = Depends(get_
     if not user or not user.verify_password(login_data.password):
         raise HTTPException(status_code=401, detail="Sai tài khoản hoặc mật khẩu")
     access_token = create_access_token({"sub": user.username})
-    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite="lax", path="/")
+    # Set cookie with very long expiration (100 years) for permanent login
+    response.set_cookie(
+        key="access_token", 
+        value=access_token, 
+        httponly=True, 
+        samesite="lax", 
+        path="/",
+        max_age=36500 * 24 * 60 * 60  # 100 years in seconds
+    )
     return LoginResponse(username=user.username,role=user.role)
 
 @router.post("/login-token")

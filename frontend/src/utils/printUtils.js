@@ -1,9 +1,13 @@
 // Utility functions for print ticket
 
-// Service mapping configuration
+// Service mapping configuration - cập nhật theo serviceUtils.js
 const SERVICE_MAP = {
   'visa': 'VISA',
-  'passport': 'HỘ CHIẾU',
+  'passport': 'Hộ chiếu',
+  'birth': 'Khai sinh',
+  'marriage': 'Kết hôn', 
+  'license': 'Bằng lái xe',
+  'others': 'Các thủ tục khác',
   'authentication': 'CHỨNG THỰC', 
   'notarization': 'CÔNG CHỨNG',
   'civil_status': 'TÌNH TRẠNG DÂN SỰ',
@@ -39,22 +43,41 @@ export const createTicketData = (number, services = [], prefix = '') => {
   });
   
   const formattedDate = `${dayOfWeek}, ${day} ${month}, ${year}`;
-  const timestamp = `VNC -- ${time}`;
+  const timestamp = `${time}`;
   
   // Xác định loại dịch vụ dựa trên services array hoặc prefix
   let serviceType = 'VISA'; // Mặc định
   
+  console.log('[DEBUG] createTicketData - services:', services);
+  console.log('[DEBUG] createTicketData - prefix:', prefix);
+  
   if (services && services.length > 0) {
+    console.log('[DEBUG] Processing services array:', services);
     if (services.length === 1) {
-      serviceType = SERVICE_MAP[services[0]] || 'VISA';
+      serviceType = SERVICE_MAP[services[0]] || services[0];
+      console.log('[DEBUG] Single service mapped:', services[0], '->', serviceType);
     } else {
-      serviceType = 'NHIỀU DỊCH VỤ';
+      // Việt Nam: Hiển thị tất cả dịch vụ đã chọn
+      if (prefix === 'V') {
+        const serviceNames = services.map(service => {
+          const mapped = SERVICE_MAP[service] || service;
+          console.log('[DEBUG] Service mapping:', service, '->', mapped);
+          return mapped;
+        }).filter(Boolean);
+        serviceType = serviceNames.join(', ');
+        console.log('[DEBUG] Multiple services for Vietnam:', serviceType);
+      } else {
+        serviceType = 'NHIỀU DỊCH VỤ';
+        console.log('[DEBUG] Multiple services for non-Vietnam:', serviceType);
+      }
     }
   } else if (prefix === 'V') {
     serviceType = 'VISA';
   } else if (prefix === 'N') {
     serviceType = 'GENERAL SERVICE';
   }
+  
+  console.log('[DEBUG] Final serviceType:', serviceType);
   
   return {
     number,

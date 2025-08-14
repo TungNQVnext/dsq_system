@@ -123,8 +123,12 @@ def get_ticket_info(number: str, db: Session = Depends(get_db)):
     
     service_map = {
         'visa': 'VISA',
-        'passport': 'HỘ CHIẾU', 
-        'authentication': 'CHỨNG THỰC',
+        'passport': 'Hộ chiếu',
+        'birth': 'Khai sinh',
+        'marriage': 'Kết hôn', 
+        'license': 'Bằng lái xe',
+        'others': 'Các thủ tục khác',
+        'authentication': 'CHỨNG THỰC', 
         'notarization': 'CÔNG CHỨNG',
         'civil_status': 'TÌNH TRẠNG DÂN SỰ',
         'other': 'DỊCH VỤ KHÁC'
@@ -136,7 +140,12 @@ def get_ticket_info(number: str, db: Session = Depends(get_db)):
         if len(services) == 1:
             service_type = service_map.get(services[0], 'VISA')
         else:
-            service_type = 'NHIỀU DỊCH VỤ'
+            # Việt Nam: Hiển thị tất cả dịch vụ đã chọn
+            if call_number.prefix == 'V':
+                service_names = [service_map.get(service.strip(), service.strip()) for service in services]
+                service_type = ', '.join(service_names)
+            else:
+                service_type = 'NHIỀU DỊCH VỤ'
     elif call_number.prefix == 'V':
         service_type = 'VISA'
     elif call_number.prefix == 'N':

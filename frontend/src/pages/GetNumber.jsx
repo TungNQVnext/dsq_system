@@ -3,10 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import '../styles/GetNumber.css';
 import { API_URL } from "../setting";
 import { useAuthGuard } from "../hooks/loginHook/useAuthGuard";
-import { HeaderDisplay } from "../components/HeaderDisplay";
-import { FooterDisplay } from "../components/FooterDisplay";
+import { HeaderTouch } from "../components/HeaderTouch";
+import { FooterTouch } from "../components/FooterTouch";
 import { createTicketData } from "../utils/printUtils";
-import { printSilently } from "../utils/silentPrint";
+import { printDirectThermal } from "../utils/directThermalPrint";
 const GetNumber = () => {
   useAuthGuard();
   useEffect(() => {
@@ -62,16 +62,23 @@ const GetNumber = () => {
       const endTime = Date.now();
       setCurrentNumber(data.number);
 
-      // Tự động in phiếu số thứ tự - sử dụng silent print utility
-      console.log('Auto printing ticket for PRP 085 US thermal printer...');
+      // Tự động in phiếu số thứ tự - sử dụng direct thermal print
+      console.log('Auto printing ticket via direct thermal print...');
       
       try {
         const ticket = createTicketData(data.number, services, prefix);
-        console.log('Ticket data:', ticket);
+        console.log('Ticket data created:', ticket);
         
-        // Chỉ in 1 lần duy nhất với delay ngắn
-        setTimeout(() => {
-          printSilently(ticket);
+        // In trực tiếp qua thermal printer
+        setTimeout(async () => {
+          console.log('Executing direct thermal print...');
+          const printSuccess = await printDirectThermal(ticket);
+          
+          if (printSuccess) {
+            console.log('✓ Direct thermal print successful');
+          } else {
+            console.log('✗ Direct thermal print failed');
+          }
         }, 500);
         
       } catch (error) {
@@ -90,7 +97,7 @@ const GetNumber = () => {
 
   return (
     <>
-    <HeaderDisplay />
+    <HeaderTouch />
     <div className="get-number-container">
       <h2 className="get-number-title">
         {prefix === "V" ? "Số thứ tự của bạn là" : "あなたの番号は"}
@@ -105,7 +112,7 @@ const GetNumber = () => {
         </button>
       )}
     </div>
-    <FooterDisplay />
+    <FooterTouch />
     </>
   );
 };

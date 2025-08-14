@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
@@ -158,24 +158,46 @@ const ReceiveNumber = () => {
 
 
   const isCallingAllowed = () => {
-    if (!currentNumber) return false;
-    
-
+    // Cho phép gọi nếu đang tải hoặc đang phát âm
     if (isCalling || isSpeaking || actionLoading) return false;
 
-    if (!['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status)) return false;
+    // Nếu có số hiện tại được chọn
+    if (currentNumber) {
+      if (!['ready', 'serving', 'cancel', 'completed'].includes(currentNumber.status)) return false;
+      if (!canControlCurrentNumber()) return false;
 
-    if (!canControlCurrentNumber()) return false;
+      if (isCurrentCounterServing() && currentNumber.status === 'serving') {
+        const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
+        const servingItem = todayItems.find(item => item.id === currentNumber.id);
+        return servingItem && servingItem.counter === selectedDoor;
+      }
 
-    if (isCurrentCounterServing() && currentNumber.status === 'serving') {
-      const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
-      const servingItem = todayItems.find(item => item.id === currentNumber.id);
-      return servingItem && servingItem.counter === selectedDoor;
+      if (isCurrentCounterServing()) return false;
+      return true;
     }
 
-    if (isCurrentCounterServing()) return false;
+    // Nếu không có số hiện tại được chọn, kiểm tra xem có số sẵn sàng để gọi không
+    if (!isCurrentCounterServing()) {
+      const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
+      let readyItems = todayItems.filter(item => item.status === 'ready');
+      
+      // Áp dụng filter theo quốc tịch
+      if (selectedNationality !== "all") {
+        if (selectedNationality === "vietnam") {
+          readyItems = readyItems.filter(item => 
+            item.nationality && item.nationality.toLowerCase().includes("việt nam")
+          );
+        } else if (selectedNationality === "other") {
+          readyItems = readyItems.filter(item => 
+            !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
+          );
+        }
+      }
+      
+      return readyItems.length > 0;
+    }
     
-    return true;
+    return false;
   };
 
   const isSearchCallingAllowed = () => {
@@ -235,7 +257,7 @@ const ReceiveNumber = () => {
     setFinishedCount(getFilteredItems(completedItems).length);
   };
 
-  const fetchCallNumbers = async () => {
+  const fetchCallNumbers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/receive_number/call-numbers`);
@@ -245,27 +267,40 @@ const ReceiveNumber = () => {
       const data = await response.json();
       
       setAllItems(data);
-      
       calculateCounts(data);
-      
       updateQueueItemsForTab(activeTab, data);
       
+      // Auto-focus logic
       if (activeTab === 'ready') {
         const todayItems = data.filter(item => isToday(item.created_date || item.updated_date));
         
+        // Ưu tiên 1: Tìm số đang phục vụ của quầy hiện tại
         const currentCounterServingItem = todayItems.find(item => 
           item.status === 'serving' && item.counter === selectedDoor
         );
         
         if (currentCounterServingItem) {
+          // Nếu có số đang phục vụ, auto-focus vào số đó
           setCurrentNumber(createCurrentNumberObject(currentCounterServingItem));
         } else {
-          const readyItems = todayItems.filter(item => item.status === 'ready');
-          const nextReady = readyItems[0];
-          if (nextReady) {
-            setCurrentNumber(createCurrentNumberObject(nextReady));
+          // Nếu không có số đang phục vụ, tìm số ready phù hợp
+          let readyItems = todayItems.filter(item => item.status === 'ready');
+          
+          // Áp dụng filter theo quốc tịch dựa trên prefix
+          if (selectedNationality !== "all") {
+            if (selectedNationality === "vietnam") {
+              readyItems = readyItems.filter(item => item.prefix === "V");
+            } else if (selectedNationality === "other") {
+              readyItems = readyItems.filter(item => item.prefix === "N");
+            }
+          }
+          
+          // Auto-focus vào số ready đầu tiên
+          if (readyItems.length > 0) {
+            setCurrentNumber(createCurrentNumberObject(readyItems[0]));
           } else {
-            setCurrentNumber(null); 
+            // Nếu không có số ready phù hợp, clear selection
+            setCurrentNumber(null);
           }
         }
       }
@@ -276,7 +311,7 @@ const ReceiveNumber = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, selectedDoor, selectedNationality, currentNumber]);
 
   const updateCallNumberStatus = async (callNumberId, newStatus) => {
     try {
@@ -337,62 +372,13 @@ const ReceiveNumber = () => {
     }
     
     setQueueItems(filteredItems);
-    
-    if (tab === 'ready') {
-      let servingItems = todayItems.filter(item => item.status === 'serving');
-      let readyItems = todayItems.filter(item => item.status === 'ready');
-      
-      if (selectedNationality !== "all") {
-        if (selectedNationality === "vietnam") {
-          servingItems = servingItems.filter(item => 
-            item.nationality && item.nationality.toLowerCase().includes("việt nam")
-          );
-          readyItems = readyItems.filter(item => 
-            item.nationality && item.nationality.toLowerCase().includes("việt nam")
-          );
-        } else if (selectedNationality === "other") {
-          servingItems = servingItems.filter(item => 
-            !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
-          );
-          readyItems = readyItems.filter(item => 
-            !item.nationality || !item.nationality.toLowerCase().includes("việt nam")
-          );
-        }
-      }
-      
-      const currentCounterServingItem = servingItems.find(item => 
-        item.counter === selectedDoor
-      );
-      
-      let currentItem;
-      if (currentCounterServingItem) {
-        currentItem = currentCounterServingItem;
-      } else {
-        currentItem = readyItems[0];
-      }
-      
-      if (currentItem) {
-        setCurrentNumber(createCurrentNumberObject(currentItem));
-      } else {
-        setCurrentNumber(null); 
-      }
-    } else {
-      if (filteredItems.length > 0) {
-        const firstItem = filteredItems[0];
-        setCurrentNumber(createCurrentNumberObject(firstItem));
-      } else {
-        setCurrentNumber(null);
-      }
-    }
   };
 
   const handleDoorChange = (doorNumber) => {
     setSelectedDoor(doorNumber);
     
-
     localStorage.setItem('selectedDoor', doorNumber);
     
-
     let newNationality;
     if (doorNumber === "1" || doorNumber === "2") {
       newNationality = "vietnam";
@@ -402,7 +388,10 @@ const ReceiveNumber = () => {
     
     setSelectedNationality(newNationality);
     localStorage.setItem('selectedNationality', newNationality);
-    fetchCallNumbers();
+    
+    // Reset current number và fetch sau đó
+    setCurrentNumber(null);
+    // fetchCallNumbers sẽ được gọi bởi useEffect khi selectedDoor thay đổi
   };
 
   const handleTabClick = (tab) => {
@@ -424,7 +413,7 @@ const ReceiveNumber = () => {
     const idToCall = callNumberId || (currentNumber && currentNumber.id);
     
     if (!idToCall) {
-      console.warn("No call number ID to call");
+      console.warn("No call number ID to call - please select a number first");
       return;
     }
 
@@ -466,6 +455,7 @@ const ReceiveNumber = () => {
       setActionLoading(true);
       try {
         await updateCallNumberStatus(currentNumber.id, 'cancel');
+        setCurrentNumber(null);
       } finally {
         setActionLoading(false);
       }
@@ -518,35 +508,6 @@ const ReceiveNumber = () => {
   }, []);
 
   useEffect(() => {
-    fetchCounterStatus();
-
-    if (allItems.length > 0) {
-
-      const todayItems = allItems.filter(item => isToday(item.created_date || item.updated_date));
-      
-      if (activeTab === 'ready') {
-
-        const newCounterServingItem = todayItems.find(item => 
-          item.status === 'serving' && item.counter === selectedDoor
-        );
-        
-        if (newCounterServingItem) {
-
-          setCurrentNumber(createCurrentNumberObject(newCounterServingItem));
-        } else {
-          const callableItems = todayItems.filter(item => ['ready', 'serving', 'cancel', 'completed'].includes(item.status));
-          const nextCallable = callableItems[0];
-          if (nextCallable) {
-            setCurrentNumber(createCurrentNumberObject(nextCallable));
-          } else {
-            setCurrentNumber(null); 
-          }
-        }
-      }
-    }
-  }, [selectedDoor, allItems, activeTab]);
-
-  useEffect(() => {
     if (!subscribe) return;
     
     const unsubscribe = subscribe("call_number_updated", (message) => {
@@ -557,7 +518,12 @@ const ReceiveNumber = () => {
     return () => {
       unsubscribe();
     };
-  }, []); 
+  }, []);
+
+  useEffect(() => {
+    fetchCallNumbers();
+    fetchCounterStatus();
+  }, [selectedDoor]);
 
   useEffect(() => {
     if (!subscribeReceive) return;
@@ -584,7 +550,7 @@ const ReceiveNumber = () => {
     if (allItems.length > 0) {
       updateQueueItemsForTab(activeTab);
     }
-  }, [activeTab, allItems, selectedNationality, selectedDoor]); 
+  }, [activeTab, allItems, selectedNationality, selectedDoor]);
 
   useEffect(() => {
     if (allItems.length > 0) {

@@ -1,3 +1,18 @@
+/* Override để đảm bảo HeaderTouch hoạt động đúng trong trang này */
+.touch-header {
+  background: #1962d6 !important;
+  height: 120px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  top: 0 !important;
+}
+
+.touch-logo-overlay {
+  z-index: 20 !important;
+  position: absolute !important;
+}
+
 .get-number-service-container {
   display: flex;
   flex-direction: column;
@@ -6,19 +21,42 @@
   height: 100vh;
   text-align: center;
   background-color: #f5f5f5;
+  background-image: url('../assets/touch_monitor_background.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* Overlay để làm background nhạt hơn */
+.get-number-service-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(245, 245, 245, 0.5); /* Giảm độ trong suốt từ 0.8 xuống 0.5 để background đậm hơn */
+  z-index: 1;
+}
+
+/* Đảm bảo nội dung hiển thị trên overlay */
+.get-number-service-container > * {
+  position: relative;
+  z-index: 2;
 }
 
 .get-number-service-title {
-  font-size: 2.2rem;
+  font-size: 1.8rem; /* Giảm từ 2.2rem xuống 1.8rem */
   font-weight: bold;
   color: black;
   margin-bottom: 5px;
 }
 
 .get-number-service-subtitle {
-  font-size: 1.1rem;
+  font-size: 1rem; /* Giữ nguyên */
   color: #666;
-  margin-bottom: 25px;
+  margin-bottom: 20px; /* Giảm từ 25px xuống 20px */
   font-weight: 300;
 }
 
@@ -27,14 +65,14 @@
   max-width: 800px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px; /* Giảm từ 12px xuống 10px */
 }
 
 .service-buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 15px;
+  gap: 10px; /* Giảm từ 12px xuống 10px */
+  margin-bottom: 12px; /* Giảm từ 15px xuống 12px */
 }
 
 .service-buttons-grid .service-button:nth-child(5) {
@@ -44,23 +82,24 @@
 }
 
 .service-label {
-  font-size: 1.05rem;
-  margin-bottom: 15px;
+  font-size: 1rem; /* Giảm từ 1.05rem xuống 1rem */
+  margin-bottom: 12px; /* Giảm từ 15px xuống 12px */
   color: #333;
   font-weight: 500;
 }
 
 .service-button {
   width: 100%;
-  padding: 18px;
+  padding: 14px; /* Giảm từ 18px xuống 14px */
   border: 2px solid #ddd;
-  border-radius: 10px;
+  border-radius: 8px; /* Giảm từ 10px xuống 8px */
   background-color: white;
   cursor: pointer;
-  font-size: 1.05rem;
+  font-size: 0.95rem; /* Giảm từ 1.05rem xuống 0.95rem */
   transition: all 0.3s ease;
   position: relative;
   text-align: center;
+  min-height: 60px; /* Thêm min-height thấp hơn */
 }
 
 .service-button:hover {
@@ -105,8 +144,8 @@
 .action-buttons {
   display: flex !important;
   flex-direction: row !important;
-  gap: 15px;
-  margin-top: 15px;
+  gap: 12px; /* Giảm từ 15px xuống 12px */
+  margin-top: 12px; /* Giảm từ 15px xuống 12px */
   width: 100%;
   align-items: center;
 }

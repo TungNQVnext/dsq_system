@@ -1,0 +1,41 @@
+/* Footer cho màn hình touch - giống FooterDisplay nhưng tối ưu cho 15 inch */
+.touch-display-footer {
+  background: #1962d6 !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px; /* Giảm margin để fit trong container */
+  height: calc(100% - 20px); /* Fit trong container với margin */
+  display: flex;
+  align-items: center;
+}
+
+.touch-display-footer-container {
+  background: black;
+  height: 100px; /* Tăng lên để hiển thị đầy đủ footer */
+  padding: 10px 0; /* Thêm padding cho container */
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;  
+  justify-content: center;
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px; /* Chỉ padding ngang */
+  width: 100%;
+}
+
+.footer-logo {
+  height: 50px; /* Giảm thêm một chút cho màn 15 inch */
+  width: auto;
+  object-fit: contain;
+}
+
+.footer-text {
+  color: white;
+  font-size: 0.9rem; /* Giảm font size cho màn 15 inch */
+  font-weight: 500;
+}
