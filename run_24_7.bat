@@ -82,8 +82,8 @@ echo Waiting for backend to initialize...
 timeout /t 10 /nobreak >nul
 
 echo [2/2] Starting Frontend (Production Mode)...
-cd /d "%~dp0frontend\dist"
-start "DSQ Frontend 24/7" cmd /c "title DSQ Frontend 24/7 && echo Starting Frontend... && %PYTHON_CMD% -m http.server 5173 > ..\..\logs\frontend.log 2>&1"
+cd /d "%~dp0"
+start "DSQ Frontend 24/7" cmd /c "title DSQ Frontend 24/7 && echo Starting Frontend SPA Server... && %PYTHON_CMD% spa_server.py 5173 frontend\dist > logs\frontend.log 2>&1"
 
 REM Wait for frontend to start
 timeout /t 5 /nobreak >nul
