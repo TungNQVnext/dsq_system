@@ -74,7 +74,7 @@ def create_thermal_content(data: PrintRequest) -> str:
     
     # Footer
     content += CENTER
-    content += "VNC System" + LINE_FEED
+    content += "VNEXT System" + LINE_FEED
     content += "Xin cam on!" + LINE_FEED
     content += LINE_FEED + LINE_FEED
     

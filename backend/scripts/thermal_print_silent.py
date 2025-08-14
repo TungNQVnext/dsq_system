@@ -29,12 +29,12 @@ def list_all_printers():
 
 def find_target_printer(printers):
     """Tìm máy in mục tiêu theo thứ tự ưu tiên"""
-    # Thứ tự ưu tiên tìm kiếm - ưu tiên TASKalfa cho testing WiFi
+    # Thứ tự ưu tiên tìm kiếm - ưu tiên PRP-085 USB cho production
     priority_keywords = [
-        ["TASKalfa", "TASK"],       # Máy in WiFi hiện tại cho testing
-        ["PRP-085", "PRP 085"],      # Máy in chính cho production  
+        ["PRP-085", "PRP 085"],      # Máy in USB chính cho production  
         ["PRP-058US", "PRP 058US"],  # Máy in thermal khác
         ["PRP", "058", "US", "085"], # Từ khóa model PRP
+        ["TASKalfa", "TASK"],       # Máy in WiFi cho testing (fallback)
         ["thermal", "receipt"],      # Loại máy in thermal
         ["80mm", "58mm"],           # Kích thước giấy
         ["USB", "WiFi", "Network"],  # Kết nối
@@ -127,9 +127,32 @@ def print_via_raw_data(content, printer_name):
             # Bắt đầu page
             win32print.StartPagePrinter(hPrinter)
             
-            # Gửi dữ liệu 
-            content_bytes = content.encode('utf-8')
-            bytes_written = win32print.WritePrinter(hPrinter, content_bytes)
+            # Gửi dữ liệu với encoding thử nghiệm cho PRP-085
+            if isinstance(content, str):
+                # Thử các encoding khác nhau cho máy in PRP-085
+                try:
+                    # Thử UTF-8 trước (mặc định)
+                    data = content.encode('utf-8')
+                    print("Using UTF-8 encoding")
+                except UnicodeEncodeError:
+                    try:
+                        # Thử Windows-1252 (Western European)
+                        data = content.encode('cp1252', errors='replace')
+                        print("Using CP1252 encoding")
+                    except:
+                        try:
+                            # Thử Latin-1 (ISO-8859-1)
+                            data = content.encode('latin-1', errors='replace')
+                            print("Using Latin-1 encoding")
+                        except:
+                            # Fallback: ASCII
+                            data = content.encode('ascii', errors='replace')
+                            print("Using ASCII encoding (fallback)")
+            else:
+                data = content
+                
+            bytes_written = win32print.WritePrinter(hPrinter, data)
+            print(f"Bytes written: {bytes_written}")
             
             # Kết thúc job
             win32print.EndPagePrinter(hPrinter)

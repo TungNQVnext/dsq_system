@@ -49,8 +49,8 @@ export const printSilently = (ticketData) => {
             ${ticketData.timestamp}
           </div>
           <div style="margin-top: 2px; font-size: 7px; border-top: 1px solid #000; padding-top: 1px; line-height: 0.8;">
-            ${ticketData.formattedDate}<br>
-            VNC System
+            VNEXT -- ${ticketData.formattedDate}<br>
+            VNEXT System
           </div>
         </div>
       `;

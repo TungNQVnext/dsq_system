@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f1f5f9; /* blue-50 */
+  background-color: #1e293b; /* Màu nền tối hơn */
   background-image: url('../assets/touch_monitor_background.jpeg');
   background-size: cover;
   background-position: center;
@@ -15,7 +15,7 @@
   position: relative;
 }
 
-/* Overlay để làm background nhạt hơn */
+/* Thêm overlay tối để làm background đậm hơn */
 .get-number-container::before {
   content: '';
   position: absolute;
@@ -23,7 +23,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(241, 245, 249, 0.5); /* Giảm độ trong suốt từ 0.8 xuống 0.5 để background đậm hơn */
+  background-color: rgba(0, 0, 0, 0.3); /* Overlay tối nhẹ để làm đậm background */
   z-index: 1;
 }
 
@@ -36,21 +36,24 @@
 .get-number-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #ffffff; /* Đổi sang màu trắng để nổi bật trên background đậm */
   margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Thêm shadow để text rõ hơn */
 }
 
 .number-loading {
   font-size: 1rem;
-  color: #6b7280;
+  color: #e5e7eb; /* Màu xám nhạt cho text loading */
   margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .number-display {
   font-size: 4rem;
   font-weight: bold;
-  color: #0f172a;
+  color: #ffffff; /* Màu trắng cho số hiển thị */
   margin-bottom: 2rem;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8); /* Shadow đậm hơn cho số lớn */
 }
 
 .complete-button-get-number {
